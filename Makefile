@@ -1,11 +1,12 @@
 NAME = ircserv
 CC = g++
 FLAGS = -Wall -Wextra -Werror -std=c++98
-SRC = # SOURCE FILES GO HERE
+SRC = Server.cpp main.cpp
+SRCDIR = src/
 OBJ = $(SRC:.cpp=.o)
-HDIR = .
+HDIR = include
 
-%.o: %.cpp
+%.o: $(SRCDIR)%.cpp
 	$(CC) $(FLAGS) -I$(HDIR) -c $< -o $@
 
 $(NAME): $(OBJ)
