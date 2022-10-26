@@ -1,5 +1,5 @@
 #include "Server.hpp"
-#include <errno.h>
+#include <cerrno>
 
 int	main(int ac, char** av) {
 	if (ac == 3) {

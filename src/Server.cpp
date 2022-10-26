@@ -7,7 +7,7 @@ Server::Server(t_port port, t_str passwd): \
 		throw (socketFailedError());
 }
 
-Server::~Server() {};
+Server::~Server(){}
 
 bool	Server::openSocket(t_port port, t_str passwd) {
 	t_fd	fd;
