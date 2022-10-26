@@ -2,7 +2,7 @@
 
 template<class Receiver>
 SimpleCommand<Receiver>::SimpleCommand(Receiver *receiver, SimpleCommand::Action action)
-: _receiver(receiver) {
+: _receiver(receiver), _action(action) {
 
 }
 
@@ -11,4 +11,3 @@ void	SimpleCommand<Receiver>::execute( ) {
 
 	(_receiver->*_action)();
 }
-

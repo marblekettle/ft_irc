@@ -1,12 +1,14 @@
-#ifndef FT_IRC_SIMPLECOMMAND_HPP
-# define FT_IRC_SIMPLECOMMAND_HPP
+#ifndef FT_IRC_SIMPLE_COMMAND_HPP
+# define FT_IRC_SIMPLE_COMMAND_HPP
 
 # include <Command.hpp>
+# include <iostream>
 
 template<class Receiver>
 class SimpleCommand : public Command {
 
 public:
+
 	typedef void	(Receiver::* Action)();
 
 					SimpleCommand(Receiver * receiver, Action action);
