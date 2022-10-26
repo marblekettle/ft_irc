@@ -9,7 +9,7 @@ ClientAttr::ClientAttr() : _fd(-1) {}
 ClientAttr::ClientAttr(int const fd) :
 	_fd(fd)
 {
-	buffer.resize(INIT_BUFFER);
+	_buffer.resize(INIT_BUFFER);
 	return ;
 }
 
@@ -35,18 +35,18 @@ ClientAttr &				ClientAttr::operator=( ClientAttr const & rhs )
 {
 	if ( this != &rhs )
 	{
-		nickname = rhs.getNick();
-		username = rhs.getUser();
-		buffer = rhs.getBuffer();
+		_nickname = rhs.getNick();
+		_username = rhs.getUser();
+		_buffer = rhs.getBuffer();
 	}
 	return (*this);
 }
 
-std::ostream &			operator<<( std::ostream & o, ClientAttr const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-}
+// std::ostream &			operator<<( std::ostream & o, ClientAttr const & i )
+// {
+// 	//o << "Value = " << i.getValue();
+// 	return o;
+// }
 
 
 /*
@@ -60,58 +60,58 @@ std::ostream &			operator<<( std::ostream & o, ClientAttr const & i )
 */
 
 
-void	ClientAttr::setNick(std::string& const nick)
+void	ClientAttr::setNick(std::string& nick)
 {
-	this->nickname = nick;
+	this->_nickname = nick;
 }
 
-void	ClientAttr::setUser(std::string& const user)
+void	ClientAttr::setUser(std::string& user)
 {
-	this->username = user;
+	this->_username = user;
 }
 
-void	ClientAttr::setBuffer(std::string& const buf)
+void	ClientAttr::setBuffer(std::string& buf)
 {
-	this->buffer = buf;
+	this->_buffer = buf;
 }
 
 void	ClientAttr::clearBuffer()
 {
-	this->buffer.clear();
+	this->_buffer.clear();
 }
 
-void	ClientAttr::appendBuffer(std::string& const buf)
+void	ClientAttr::appendBuffer(std::string& buf)
 {
-	this->buffer += buf;
+	this->_buffer += buf;
 }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-int const		ClientAttr::getFd()
+int		ClientAttr::getFd()
 {
 	return (this->_fd);
 }
 
-const std::string&	ClientAttr::getNick() const
+std::string	ClientAttr::getNick() const
 {
-	return (this->nickname);
+	return (this->_nickname);
 }
 
-const std::string&	ClientAttr::getNick() const
+std::string	ClientAttr::getUser() const
 {
-	return (this->nickname);
+	return (this->_username);
 }
 
-const std::string&	ClientAttr::getBuffer() const
+std::string	ClientAttr::getBuffer() const
 {
-	return (this->buffer);
+	return (this->_buffer);
 }
 
-size_t const	ClientAttr::getBufSize() const
+size_t	ClientAttr::getBufSize() const
 {
-	return (this->buffer.size());
+	return (this->_buffer.size());
 }
 
 /* ************************************************************************** */

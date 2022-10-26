@@ -11,9 +11,9 @@ class ClientAttr
 	private:
 
 		const int 		_fd;
-		std::string		nickname;
-		std::string		username;
-		std::string		buffer;
+		std::string		_nickname;
+		std::string		_username;
+		std::string		_buffer;
 
 		ClientAttr();
 
@@ -25,16 +25,16 @@ class ClientAttr
 		~ClientAttr();
 
 
-		const int				getFd();
-		const std::string&		getNick() const;
-		const std::string&		getUser() const;
-		const std::string&		getBuffer() const;
-		const size_t			getBufSize() const;
-		void					setNick(std::string& const nick);
-		void					setUser(std::string& const user);
-		void					setBuffer(std::string& const user);
-		void					appendBuffer(std::string& const user);
-		void					clearBuffer();
+		int					getFd();
+		std::string			getNick() const;
+		std::string			getUser() const;
+		std::string			getBuffer() const;
+		size_t				getBufSize() const;
+		void				setNick(std::string& nick);
+		void				setUser(std::string& user);
+		void				setBuffer(std::string& user);
+		void				appendBuffer(std::string& user);
+		void				clearBuffer();
 };
 
 std::ostream &			operator<<( std::ostream& o, ClientAttr const& i );
