@@ -109,9 +109,4 @@ std::string	ClientAttr::getBuffer() const
 	return (this->_buffer);
 }
 
-size_t	ClientAttr::getBufSize() const
-{
-	return (this->_buffer.size());
-}
-
 /* ************************************************************************** */

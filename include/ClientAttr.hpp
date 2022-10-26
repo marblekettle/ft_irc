@@ -29,7 +29,6 @@ class ClientAttr
 		std::string			getNick() const;
 		std::string			getUser() const;
 		std::string			getBuffer() const;
-		size_t				getBufSize() const;
 		void				setNick(std::string& nick);
 		void				setUser(std::string& user);
 		void				setBuffer(std::string& user);
