@@ -1,5 +1,34 @@
 #include "Server.hpp"
-#include <sstream>
+
+bool	Server::__addclient() {
+	t_fd	pollfd;
+	t_addr	addr;
+	std::memset(&addr, 0, sizeof(t_addrin));
+	socklen_t	addrlen = sizeof(t_addr);
+	pollfd.fd = accept(_fd[0].fd, &addr, &addrlen);
+	if (pollfd.fd < 0)
+		return (false);
+	if (addrlen != sizeof(t_addr)) {
+		close (pollfd.fd);
+		return (false);
+	}
+	fcntl(pollfd.fd, F_SETFL, O_NONBLOCK);
+	pollfd.events = POLLIN | POLLOUT;
+	_fd.push_back(pollfd);
+	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
+	t_conn	conn;
+	conn.first = pollfd.fd;
+	conn.second = true;
+	_connq.push(conn);
+	return (true);
+}
+
+void	Server::__queue(int fd, t_str data) {
+	t_datap	datap;
+	datap.first = fd;
+	datap.second = data;
+	_dataq.push(datap);
+}
 
 Server::Server(t_port port, t_str passwd): \
 	_port(port), _passwd(passwd), _ready(false) {
@@ -44,38 +73,18 @@ int		Server::pollClients() {
 				buf[len] = '\0';
 				t_str	message(buf);
 				message = message.substr(0, message.find('\n'));
-				if (_cmap[it->fd].reg)
-					sendToAllExcept(message, it->fd);
-				else {
-					if (message.length() == 0 || message.length() > 15 \
-						|| message.find(' ') != std::string::npos) {
-						send(it->fd, "Invalid nickname, enter again\n", 30, 0);
-					} else {
-						memcpy(_cmap.at(it->fd).nick, message.c_str(), message.size());
-						send(it->fd, "Nickname registered\n", 20, 0);
-						_cmap[it->fd].reg = true;
-					}
-				}
+				__queue(it->fd, message);
 			}
 			if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
 				std::cout << "FD " << it->fd << " disconnected!" << std::endl;
-				close(it->fd);
+				disconnectClient(it->fd);
 				_fd.erase(it);
-				_cmap.erase(it->fd);
 				it--;
 			}
 		}
 		if (_fd[0].revents & POLLIN) {
-			t_addr		addr;
-			std::memset(&addr, 0, sizeof(t_addrin));
-			socklen_t	addrlen;
-			int			newfd = accept(_fd[0].fd, &addr, &addrlen);
-			if (!addFileDesc(newfd))
-				return (-1);
-			t_str	cip = inet_ntoa(reinterpret_cast<t_addrin*>(&addr)->sin_addr);
-			std::cout << "New connection: " << cip << std::endl;
-			addClient(newfd, cip);
-			send(newfd, "Please enter a nickname\n", 25, 0);
+			if (!__addclient())
+				throw (connectionError());
 		}
 		if (_fd[0].revents & (POLLERR | POLLHUP | POLLNVAL))
 			return (-1);
@@ -83,33 +92,39 @@ int		Server::pollClients() {
 	return (pollout);
 }
 
-bool	Server::addFileDesc(int fd) {
-	t_fd pollfd;
-	if (fd < 0)
-		return (false);
-	fcntl(fd, F_SETFL, O_NONBLOCK);				
-	pollfd.fd = fd;
-	pollfd.events = POLLIN | POLLOUT;
-	_fd.push_back(pollfd);
-	return (true);
+void	Server::disconnectClient(int fd) {
+	t_conn	conn;
+	conn.first = fd;
+	conn.second = false;
+	_connq.push(conn);
+	close(fd);
+	_addrmap.erase(fd);
 }
 
-void	Server::addClient(int fd, t_str ip) {
-	t_client	cli;
-	cli.fd = fd;
-	cli.ip = ip;
-	memset(cli.nick, '\0', 16);
-	cli.reg = false;
-	_cmap[fd] = cli;
+int		Server::getConnections(t_conn& conn) {
+	int	siz = _connq.size();
+	if (siz) {
+		conn = _connq.front();
+		_connq.pop();
+	}
+	return (siz);
 }
 
-void	Server::sendToAllExcept(t_str message, int fd) {
-	for (unsigned int i = 1; i < _fd.size(); i++) {
-		if (_fd[i].fd != fd) {
-			std::stringstream	mout;
-			mout << _cmap[fd].nick << ": " << message << '\n';
-			send(_fd[i].fd, mout.str().c_str(), mout.str().length(), 0);
-		}
+int		Server::getQueuedData(t_datap& data) {
+	int siz = _dataq.size();
+	if (siz) {
+		data = _dataq.front();
+		_dataq.pop();
+	}
+	return (siz);
+}
+
+t_str	Server::getIP(int fd) {
+	try {
+		t_str out = inet_ntoa(_addrmap.at(fd).sin_addr);
+		return (out);
+	} catch(std::exception &e) {
+		return ("");
 	}
 }
 

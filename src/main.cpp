@@ -15,6 +15,14 @@ int	main(int ac, char** av) {
 			while (1) {
 				if (server.pollClients() < 0)
 					throw (Server::connectionError());
+				t_datap	data;
+				while (1) {
+					int a = server.getQueuedData(data);
+					if (a == 0)
+						break ;
+					std::cout << server.getIP(data.first) << ": ";
+					std::cout << data.second << std::endl;
+				}
 			}
 		} catch (std::exception &e) {
 			std::cerr << e.what() << std::endl;

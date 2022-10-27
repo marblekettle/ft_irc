@@ -3,6 +3,7 @@
 # include <iostream>
 # include <netinet/in.h>
 # include <vector>
+# include <queue>
 # include <map>
 
 typedef	std::string				t_str;
@@ -12,14 +13,11 @@ typedef struct sockaddr_in		t_addrin;
 typedef struct sockaddr			t_addr;
 typedef struct pollfd			t_fd;
 typedef std::vector<t_fd>		t_fdv;
+typedef std::map<int, t_addrin>	t_addrmap;
+typedef std::pair<int, t_str>	t_datap;
+typedef std::queue<t_datap>		t_dataq;
+typedef std::pair<int, bool>	t_conn;
+typedef std::queue<t_conn>		t_connq;
 
-typedef	struct	s_client {
-	int		fd;
-	t_str	ip;
-	char	nick[16];
-	bool	reg;
-}								t_client;
-
-typedef std::map<int, t_client>	t_cmap;
 
 #endif
