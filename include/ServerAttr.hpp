@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <algorithm>
 # include <map>
 # include <vector>
 # include "ClientAttr.hpp"
@@ -12,9 +13,9 @@ class ServerAttr
 
 	private:
 
+		// std::string					_host;
 		uint32_t					_port;
 		std::string					_password;
-		// std::string					_host;
 		std::map<std::string, ClientAttr*>	_clients;
 
 		ServerAttr();
@@ -29,7 +30,7 @@ class ServerAttr
 		// std::string			getHost() const;
 		std::string			getPassword() const;
 		uint32_t			getPort() const;
-		ClientAttr&			getClient(std::string username) const;
+		ClientAttr*			getClient(std::string& username) const;
 
 };
 

@@ -54,6 +54,11 @@ ServerAttr &				ServerAttr::operator=( ServerAttr const & rhs )
 
 
 /*
+** --------------------------------- MUTATORS ---------------------------------
+*/
+
+
+/*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
@@ -67,9 +72,15 @@ uint32_t	ServerAttr::getPort() const
 	return (this->_port);
 }
 
-ClientAttr&		ServerAttr::getClient(std::string username) const
+ClientAttr*		ServerAttr::getClient(std::string& username) const
 {
-	return (this->_clients.find(username));
+	std::map<std::string, ClientAttr*>::const_iterator it;
+
+	it = this->_clients.find(username);
+	if (it != this->_clients.end())
+		return (it->second);
+	
+	return (nullptr);
 }
 
 /* ************************************************************************** */
