@@ -25,6 +25,7 @@ ClientAttr::ClientAttr( const ClientAttr & src ) :
 
 ClientAttr::~ClientAttr()
 {
+	clearBuffer();
 }
 
 /*
