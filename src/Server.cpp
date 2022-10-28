@@ -2,24 +2,24 @@
 
 bool	Server::__addclient() {
 	t_fd	pollfd;
-	t_addr	addr;
+	t_addr	addr;								//IP address stored in here
 	std::memset(&addr, 0, sizeof(t_addrin));
 	socklen_t	addrlen = sizeof(t_addr);
-	pollfd.fd = accept(_fd[0].fd, &addr, &addrlen);
+	pollfd.fd = accept(_fd[0].fd, &addr, &addrlen);	//Get new file descriptor
 	if (pollfd.fd < 0)
 		return (false);
-	if (addrlen != sizeof(t_addr)) {
+	if (addrlen != sizeof(t_addr)) {	//Kicks out connection if not correct protocol
 		close (pollfd.fd);
 		return (false);
 	}
-	fcntl(pollfd.fd, F_SETFL, O_NONBLOCK);
-	pollfd.events = POLLIN | POLLOUT;
+	fcntl(pollfd.fd, F_SETFL, O_NONBLOCK);	//Set FD to non-blocking
+	pollfd.events = POLLIN | POLLOUT;		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
 	t_conn	conn;
 	conn.first = pollfd.fd;
 	conn.second = true;
-	_connq.push(conn);
+	_connq.push(conn);			//Add connection to queue
 	return (true);
 }
 
@@ -43,18 +43,22 @@ bool	Server::openSocket(t_port port, t_str passwd) {
 	fd.fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (fd.fd == -1)
 		return (false);
-	fcntl(fd.fd, F_SETFL, O_NONBLOCK);
-	fd.events = POLLIN;
+	fcntl(fd.fd, F_SETFL, O_NONBLOCK);			//Set listening FD to non-blocking
+	fd.events = POLLIN;							//Only allow incoming data for connections
 	t_addrin addr;
 	std::memset(&addr, 0, sizeof(t_addrin));
-	addr.sin_family = AF_INET;
+	addr.sin_family = AF_INET;					//Internet protocol
 	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(0x7F000001);
+	addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
 	if (bind(fd.fd, reinterpret_cast<t_addr*>(&addr), sizeof(t_addr)))
 		return (false);
-	if (_fd.size() == 0)
+	if (_fd.size() == 0)						//Add new socket, or replace old one?
 		_fd.push_back(fd);
-	if (listen(fd.fd, 10))
+	else {
+		close(_fd[0].fd);
+		_fd[0] = fd;
+	}
+	if (listen(fd.fd, 10))						//Set listening FD to listen
 		return (false);
 	_port = port;
 	_passwd = passwd;
@@ -67,6 +71,7 @@ int		Server::pollClients() {
 		return (-1);
 	if (pollout > 0) {
 		for (t_fdv::iterator it = _fd.begin() + 1; it < _fd.end(); it++) {
+			//	Incoming data --> Add to data queue
 			if (it->revents & POLLIN) {
 				char	buf[2000];
 				int		len = recv(it->fd, buf, 1999, 0);
@@ -75,6 +80,7 @@ int		Server::pollClients() {
 				message = message.substr(0, message.find('\n'));
 				__queue(it->fd, message);
 			}
+			//	Disconnected file descriptor --> Remove client
 			if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
 				std::cout << "FD " << it->fd << " disconnected!" << std::endl;
 				disconnectClient(it->fd);
@@ -82,10 +88,12 @@ int		Server::pollClients() {
 				it--;
 			}
 		}
+		//	New connection --> Add client and add to connection queue
 		if (_fd[0].revents & POLLIN) {
 			if (!__addclient())
 				throw (connectionError());
 		}
+		//	Socket disconnected --> ???
 		if (_fd[0].revents & (POLLERR | POLLHUP | POLLNVAL))
 			return (-1);
 	}
