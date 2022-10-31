@@ -1,10 +1,10 @@
 #ifndef FT_IRC_SEND_MESSAGE_COMMAND_HPP
 #define FT_IRC_SEND_MESSAGE_COMMAND_HPP
 
-# include <Command.hpp>
-# include <Client.hpp>
+//# include <Command.hpp>
+//# include <Client.hpp>
 
-template<class Receiver>
+template<typename Receiver>
 class SendMessageCommand : public Command {
 
 public:
@@ -16,7 +16,7 @@ protected:
 
 private:
 
-	Client *		_client;
+	Client *		_sender;
 	Receiver *		_receiver;
 	std::string		_message;
 

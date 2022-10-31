@@ -54,12 +54,26 @@ Client &				Client::operator=( Client const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void	Client::sendMessage( Client *sender, std::string message ) {
 
+	std::cout << "sendMessage (from: " << sender->getNick() << ") : " << message << std::endl;
+	// TODO implement sending
+}
+
+Command *	Client::getCommand( ) {
+	if (_commandQueue.empty())
+		return NULL;
+	return _commandQueue.front(); // TODO pop cmd only after success!? (ACK)
+}
+
+void	Client::addCommandToQueue( Command * command ) {
+
+	_commandQueue.push(command);
+}
 
 /*
 ** --------------------------------- MUTATORS ---------------------------------
 */
-
 
 void	Client::setNick(std::string& nick)
 {

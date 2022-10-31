@@ -1,7 +1,6 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include <Channel.hpp>
 # include <Command.hpp>
 # include <iostream>
 # include <string>
@@ -39,6 +38,10 @@ class Client
 		void				setBuffer(std::string& user);
 		void				appendBuffer(std::string& user);
 		void				clearBuffer();
+
+		void				sendMessage(Client * sender, std::string message);
+		Command *			getCommand();
+		void				addCommandToQueue( Command * command );
 };
 
 std::ostream &			operator<<( std::ostream& o, Client const& i );

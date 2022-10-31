@@ -13,6 +13,7 @@ int	main(int ac, char** av) {
 		try {
 			Server	server(port, passwd);
 			while (1) {
+				std::cerr << "message\n";
 				if (server.pollClients() < 0)
 					throw (Server::connectionError());
 				t_datap	data;

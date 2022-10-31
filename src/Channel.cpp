@@ -9,7 +9,7 @@ Channel::Channel(const std::string &name, const std::string &password, Client *a
 	_admin(admin),
 	_password(password)
 {
-	this->_clients.push_back(admin);
+	this->_clientList.push_back(admin);
 }
 
 /*
@@ -18,7 +18,7 @@ Channel::Channel(const std::string &name, const std::string &password, Client *a
 
 Channel::~Channel()
 {
-	this->_clients.clear();
+	this->_clientList.clear();
 }
 
 
@@ -46,24 +46,34 @@ Channel::~Channel()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Channel::join(Client* new_client)
-{
-	std::vector<Client *>::iterator it;
-
-	it = std::find(_clients.begin(), _clients.end(), new_client);
-	if (it != _clients.end())
-		return ; // error: client already in vector
-	this->_clients.push_back(new_client);
-}
-
 void	Channel::removeClient(Client* client)
 {
 	std::vector<Client *>::iterator it;
 
-	it = std::find(_clients.begin(), _clients.end(), client);
-	if (it == _clients.end())
+	it = std::find(_clientList.begin(), _clientList.end(), client);
+	if (it == _clientList.end())
 		return ; // error: client not in vector
-	std::remove(_clients.begin(), _clients.end(), client);
+	std::remove(_clientList.begin(), _clientList.end(), client);
+}
+
+/*
+** --------------------------------- COMMANDS ---------------------------------
+*/
+
+void	Channel::join(Client* new_client)
+{
+	std::vector<Client *>::iterator it;
+
+	it = std::find(_clientList.begin(), _clientList.end(), new_client);
+	if (it != _clientList.end())
+		return ; // error: client already in vector
+	this->_clientList.push_back(new_client);
+	// TODO implementation (iterate to client->list ->add commands(join channel update) to all clients queues
+}
+
+std::vector<Client *> *	Channel::getClientList( ) {
+
+	return &_clientList;
 }
 
 /*
