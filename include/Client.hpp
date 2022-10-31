@@ -1,6 +1,8 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
+# include <Channel.hpp>
+# include <Command.hpp>
 # include <iostream>
 # include <string>
 # include <queue>
@@ -15,7 +17,7 @@ class Client
 		std::string				_nickname;
 		std::string				_username;
 		std::string				_buffer;
-		std::queue<std::string>	_msg;
+		std::queue<Command *>	_commandQueue;
 
 		Client();
 
@@ -31,7 +33,6 @@ class Client
 		std::string			getNick() const;
 		std::string			getUser() const;
 		std::string			getBuffer() const;
-
 
 		void				setNick(std::string& nick);
 		void				setUser(std::string& user);

@@ -13,7 +13,7 @@ class Channel
 
 		const std::string			_name;
 		Client*						_admin;
-		std::vector<Client *>		_clients;
+		std::vector<Client *>		_clientList;
 		std::string					_password;
 
 	public:
