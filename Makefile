@@ -1,5 +1,3 @@
-###               auto-generated Makefile               ###
-
 NAME		=	ircserv
 
 SRC_DIR		=	src/

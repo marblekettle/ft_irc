@@ -1,24 +1,35 @@
-#ifndef FT_IRC_CHANNEL_HPP
-# define FT_IRC_CHANNEL_HPP
+#ifndef CHANNEL_HPP
+# define CHANNEL_HPP
 
 # include <iostream>
-# include <list>
-# include <Client.hpp>
+# include <string>
+# include "ClientAttr.hpp"
+# include <vector>
 
-class Channel {
+class Channel
+{
 
-public:
+	private:
 
-						Channel( const std::string & name );
-						~Channel( ) {}
+		const std::string			_name;
+		ClientAttr*					_admin;
+		std::vector<ClientAttr *>	_clients;
+		std::string					_password;
 
-	void				join( Client * client );
+	public:
 
-private:
+		Channel(const std::string &name, const std::string &password, ClientAttr *admin);
+		~Channel();
 
-	std::string			_name;
-	std::list<Client *>	_clientList;
+		std::string		getPassword() const;
+		std::string		getName() const;
+		ClientAttr*		getAdmin() const;
+		void			addClient(ClientAttr *new_client);
+		void			removeClient(ClientAttr *client);
+		void			setPassword(std::string &password);
 
 };
 
-#endif //FT_IRC_CHANNEL_HPP
+// std::ostream &			operator<<( std::ostream & o, Channel const & i );
+
+#endif /* ********************************************************* CHANNEL_H */
