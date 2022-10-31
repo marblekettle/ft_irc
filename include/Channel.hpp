@@ -3,7 +3,7 @@
 
 # include <iostream>
 # include <string>
-# include "ClientAttr.hpp"
+# include "Client.hpp"
 # include <vector>
 
 class Channel
@@ -12,20 +12,20 @@ class Channel
 	private:
 
 		const std::string			_name;
-		ClientAttr*					_admin;
-		std::vector<ClientAttr *>	_clients;
+		Client*						_admin;
+		std::vector<Client *>		_clients;
 		std::string					_password;
 
 	public:
 
-		Channel(const std::string &name, const std::string &password, ClientAttr *admin);
+		Channel(const std::string &name, const std::string &password, Client *admin);
 		~Channel();
 
 		std::string		getPassword() const;
 		std::string		getName() const;
-		ClientAttr*		getAdmin() const;
-		void			addClient(ClientAttr *new_client);
-		void			removeClient(ClientAttr *client);
+		Client*			getAdmin() const;
+		void			addClient(Client *new_client);
+		void			removeClient(Client *client);
 		void			setPassword(std::string &password);
 
 };

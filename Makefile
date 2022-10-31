@@ -7,18 +7,18 @@ BIN_DIR		=	bin/
 BIN			=	$(BIN_DIR)$(NAME)
 
 SRC			=	Server.cpp \
+				ServerAttr.cpp \
 				Channel.cpp \
 				Client.cpp \
 				Command.cpp \
-				SimpleCommand.cpp \
 				JoinCommand.cpp \
 				main.cpp \
 
 HEADERS		=	Server.hpp \
+				ServerAttr.hpp \
 				Channel.hpp \
 				Client.hpp \
 				Command.hpp \
-				SimpleCommand.hpp \
 				JoinCommand.hpp \
 
 OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
