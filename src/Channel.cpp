@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Channel::Channel(const std::string &name, const std::string &password, ClientAttr *admin) :
+Channel::Channel(const std::string &name, const std::string &password, Client *admin) :
 	_name(name),
 	_admin(admin),
 	_password(password)
@@ -46,9 +46,9 @@ Channel::~Channel()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Channel::addClient(ClientAttr* new_client)
+void	Channel::addClient(Client* new_client)
 {
-	std::vector<ClientAttr *>::iterator it;
+	std::vector<Client *>::iterator it;
 
 	it = std::find(_clients.begin(), _clients.end(), new_client);
 	if (it != _clients.end())
@@ -56,9 +56,9 @@ void	Channel::addClient(ClientAttr* new_client)
 	this->_clients.push_back(new_client);
 }
 
-void	Channel::removeClient(ClientAttr* client)
+void	Channel::removeClient(Client* client)
 {
-	std::vector<ClientAttr *>::iterator it;
+	std::vector<Client *>::iterator it;
 
 	it = std::find(_clients.begin(), _clients.end(), client);
 	if (it == _clients.end())
@@ -89,7 +89,7 @@ std::string		Channel::getName() const
 	return (this->_name);
 }
 
-ClientAttr*		Channel::getAdmin() const
+Client*		Channel::getAdmin() const
 {
 	return (this->_admin);
 }
