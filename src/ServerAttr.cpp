@@ -74,11 +74,13 @@ uint32_t	ServerAttr::getPort() const
 
 ClientAttr*		ServerAttr::getClient(std::string& username) const
 {
-	std::map<std::string, ClientAttr*>::const_iterator it;
+	std::map<int, ClientAttr*>::const_iterator it;
 
-	it = this->_clients.find(username);
-	if (it != this->_clients.end())
-		return (it->second);
+	for (it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (it->second->getUser() == username)
+			return (it->second);
+	}
 	
 	return (nullptr);
 }
