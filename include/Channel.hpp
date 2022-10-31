@@ -24,7 +24,7 @@ class Channel
 		std::string		getPassword() const;
 		std::string		getName() const;
 		Client*			getAdmin() const;
-		void			addClient(Client *new_client);
+		void			join(Client *new_client);
 		void			removeClient(Client *client);
 		void			setPassword(std::string &password);
 

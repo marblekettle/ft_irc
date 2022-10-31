@@ -46,7 +46,7 @@ Channel::~Channel()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Channel::addClient(Client* new_client)
+void	Channel::join(Client* new_client)
 {
 	std::vector<Client *>::iterator it;
 

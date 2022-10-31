@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <queue>
 
 # define INIT_BUFFER 100
 
@@ -10,10 +11,11 @@ class Client
 {
 	private:
 
-		const int 		_fd;
-		std::string		_nickname;
-		std::string		_username;
-		std::string		_buffer;
+		const int 				_fd;
+		std::string				_nickname;
+		std::string				_username;
+		std::string				_buffer;
+		std::queue<std::string>	_msg;
 
 		Client();
 
@@ -29,6 +31,8 @@ class Client
 		std::string			getNick() const;
 		std::string			getUser() const;
 		std::string			getBuffer() const;
+
+
 		void				setNick(std::string& nick);
 		void				setUser(std::string& user);
 		void				setBuffer(std::string& user);

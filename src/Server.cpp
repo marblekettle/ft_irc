@@ -119,12 +119,19 @@ int		Server::getConnections(t_conn& conn) {
 }
 
 int		Server::getQueuedData(t_datap& data) {
-	int siz = _dataq.size();
-	if (siz) {
-		data = _dataq.front();
-		_dataq.pop();
+
+	size_t siz;
+
+	for (std::vector<Client *>::iterator it = _clientList.begin(); it < _clientList.end(); it++)
+	{
+		siz = it.getQueue.size();
+		if (siz) {
+			data = _dataq.front(); // <---handle inside client-queue?
+			_dataq.pop(); // <-----------       " same.
+		}
 	}
-	return (siz);
+
+	return ((int)siz);
 }
 
 t_str	Server::getIP(int fd) {
