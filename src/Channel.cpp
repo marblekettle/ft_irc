@@ -60,7 +60,7 @@ void	Channel::removeClient(Client* client)
 ** --------------------------------- COMMANDS ---------------------------------
 */
 
-void	Channel::join(Client* new_client)
+void	Channel::join(Client * new_client)
 {
 	std::vector<Client *>::iterator it;
 
@@ -71,9 +71,9 @@ void	Channel::join(Client* new_client)
 	// TODO implementation (iterate to client->list ->add commands(join channel update) to all clients queues
 }
 
-std::vector<Client *> *	Channel::getClientList( ) {
+std::vector<Client *> &	Channel::getClientList( ) {
 
-	return &_clientList;
+	return _clientList;
 }
 
 /*

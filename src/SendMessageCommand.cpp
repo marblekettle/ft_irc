@@ -12,27 +12,17 @@ SendMessageCommand<Receiver>::SendMessageCommand(Client * sender, Receiver * rec
 template<>
 void	SendMessageCommand<Client *>::execute( ) {
 
+	std::cout << "SendMessageCommand(Client): " << _message << std::endl;
 	reinterpret_cast<Client *>(_receiver)->sendMessage(_sender, _message);
 }
 
 template<>
 void	SendMessageCommand<Channel *>::execute( ) {
 
-	for (std::vector<Client *>::iterator it = reinterpret_cast<Channel *>(_receiver)->getClientList()->begin(); it < reinterpret_cast<Channel *>(_receiver)->getClientList()->end(); it++)
+	std::cout << "SendMessageCommand(Channel): " << _message << std::endl;
+	std::vector<Client *> & clientList = reinterpret_cast<Channel *>(_receiver)->getClientList();
+	for (std::vector<Client *>::iterator it = clientList.begin(); it <= clientList.end(); it++)
 	{
-
+		(*it)->addCommandToQueue(new SendMessageCommand<Client *>(_sender, &(*it), _message));
 	}
-	reinterpret_cast<Channel *>(_receiver)->sendMessage(_sender, _message);
 }
-
-//template<>
-//void	SendMessageCommand<Client *>::execute( ) {
-//
-//	std::cout << "SendMessageCommand(Client): " << this->_message << std::endl;
-//}
-//
-//template<>
-//void	SendMessageCommand<Channel *>::execute( ) {
-//
-//	std::cout << "SendMessageCommand(Channel): " << this->_message << std::endl;
-//}

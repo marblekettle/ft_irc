@@ -60,7 +60,8 @@ void	Client::sendMessage( Client *sender, std::string message ) {
 	// TODO implement sending
 }
 
-Command *	Client::getCommand( ) {
+Command *	Client::getNextCommand( ) {
+
 	if (_commandQueue.empty())
 		return NULL;
 	return _commandQueue.front(); // TODO pop cmd only after success!? (ACK)

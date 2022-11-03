@@ -24,11 +24,10 @@ class Channel
 		std::string				getPassword() const;
 		std::string				getName() const;
 		Client*					getAdmin() const;
-		std::vector<Client *> *	getClientList();
 		void					removeClient(Client *client);
 
-//		void			sendMessageCommand(Client * sender, std::string message);
-		void			join(Client *new_client);
+		void					join(Client *new_client);
+		std::vector<Client *> &	getClientList();
 
 		void			setPassword(std::string &password);
 

@@ -40,7 +40,7 @@ class Client
 		void				clearBuffer();
 
 		void				sendMessage(Client * sender, std::string message);
-		Command *			getCommand();
+		Command *			getNextCommand();
 		void				addCommandToQueue( Command * command );
 };
 
