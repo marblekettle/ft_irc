@@ -20,7 +20,7 @@ void	SendMessageCommand<Channel *>::execute( ) {
 
 	for (std::vector<Client *>::iterator it = reinterpret_cast<Channel *>(_receiver)->getClientList()->begin(); it < reinterpret_cast<Channel *>(_receiver)->getClientList()->end(); it++)
 	{
-		reinterpret_cast<Client *>
+
 	}
 	reinterpret_cast<Channel *>(_receiver)->sendMessage(_sender, _message);
 }
