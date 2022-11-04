@@ -38,6 +38,7 @@ class Server {
 												//	Return: Number of connections that returned data (i.e. return value of poll())
 		int	test();
 		bool	connectClient();				//Called when a connection is opened
+		void	addChannel(Channel * channel);
 		void	disconnectClient(int fd);		//Remove a specific file descriptor (e.g. when KILL is called)
 		int		getConnections(t_conn& conn);	//Get connection status from queue of new connections (placed inside reference)
 												//	Return: Queued connections before calling
@@ -48,6 +49,7 @@ class Server {
 		void	clientMessage(int fd);
 		void	broadcast(int fd, std::string message);
 		t_str	readMessage(int fd);
+
 		class 	socketFailedError : public std::exception {
 			virtual const char*	what() const throw();
 		};

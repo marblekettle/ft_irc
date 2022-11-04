@@ -33,6 +33,12 @@ bool	Server::connectClient()
 	return (true);
 }
 
+void	Server::addChannel(Channel * channel) {
+
+	_channels.insert(std::make_pair(channel->getName(), channel));
+	std::cout << "Channel: '" << channel->getName() << "' added" << std::endl;
+}
+
 void	Server::__queue(int fd, t_str data) {
 	t_datap	datap;
 	datap.first = fd;
@@ -217,5 +223,14 @@ int	Server::test() {
 	_clients[3]->getNextCommand()->execute();
 	_clients[3]->getNextCommand()->execute();
 	_clients[3]->getNextCommand()->execute();
+
+	addChannel(new Channel("new channel", "pass", _clients[3]));
+//	_channels["new channel"]->join(_clients[4]);
+	_channels["new channel"]->join(_clients[5]);
+	std::vector<Client *> & list =_channels["new channel"]->getClientList();
+	for (std::vector<Client *>::iterator it = list.begin(); it < list.end(); it++)
+	{
+		std::cout << (*it)->getNick() << std::endl;
+	}
 	return (0);
 }
