@@ -1,25 +1,32 @@
+#include <sstream>
 #include "Server.hpp"
 
-bool	Server::__addclient() {
-	t_fd	pollfd;
+bool	Server::connectClient() 
+{
+	int	fd;
 	t_addr	addr;								//IP address stored in here
 	std::memset(&addr, 0, sizeof(t_addrin));
 	socklen_t	addrlen = sizeof(t_addr);
-	pollfd.fd = accept(_fd[0].fd, &addr, &addrlen);	//Get new file descriptor
-	if (pollfd.fd < 0)
-		return (false);
+	fd = accept(_socket, &addr, &addrlen);	//Get new file descriptor
+	if (fd < 0)
+		throw std::runtime_error("Error");
 	if (addrlen != sizeof(t_addr)) {	//Kicks out connection if not correct protocol
-		close (pollfd.fd);
-		return (false);
+		close (fd);
+		throw std::runtime_error("Error");
 	}
-	fcntl(pollfd.fd, F_SETFL, O_NONBLOCK);	//Set FD to non-blocking
-	pollfd.events = POLLIN | POLLOUT;		//Allow for sending AND receiving data
+	fcntl(fd, F_SETFL, O_NONBLOCK);	//Set FD to non-blocking
+	t_fd	pollfd = {fd, POLLIN, 0};
+	// pollfd.events = (POLLIN | POLLOUT);		//Allow for sending AND receiving data
+	pollfd.events = (POLLIN);		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
-	t_conn	conn;
-	conn.first = pollfd.fd;
-	conn.second = true;
-	_connq.push(conn);			//Add connection to queue
+	// char hostname[NI_MAXHOST];
+	// if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
+	// 	0)
+	// 	throw std::runtime_error("Error");
+	ClientAttr* client = new ClientAttr(fd);
+	_clients.insert(std::make_pair(fd, client));
+	std::cout << "client #" << fd << " is connected" << std::endl;
 	return (true);
 }
 
@@ -30,96 +37,142 @@ void	Server::__queue(int fd, t_str data) {
 	_dataq.push(datap);
 }
 
-Server::Server(t_port port, t_str passwd): \
-	_port(port), _passwd(passwd), _ready(false) {
-	if (!openSocket(port, passwd))
-		throw (socketFailedError());
+Server::Server(t_port port, t_str passwd):
+	_port(port),
+	_passwd(passwd),
+	_ready(false) 
+{
+	_socket = openSocket();
 }
 
 Server::~Server(){}
 
-bool	Server::openSocket(t_port port, t_str passwd) {
-	t_fd	fd;
-	fd.fd = socket(PF_INET, SOCK_STREAM, 0);
-	if (fd.fd == -1)
-		return (false);
-	fcntl(fd.fd, F_SETFL, O_NONBLOCK);			//Set listening FD to non-blocking
-	fd.events = POLLIN;							//Only allow incoming data for connections
-	t_addrin addr;
-	std::memset(&addr, 0, sizeof(t_addrin));
-	addr.sin_family = AF_INET;					//Internet protocol
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
-	if (bind(fd.fd, reinterpret_cast<t_addr*>(&addr), sizeof(t_addr)))
-		return (false);
-	if (_fd.size() == 0)						//Add new socket, or replace old one?
-		_fd.push_back(fd);
-	else {
-		close(_fd[0].fd);
-		_fd[0] = fd;
-	}
-	if (listen(fd.fd, 10))						//Set listening FD to listen
-		return (false);
-	_port = port;
-	_passwd = passwd;
-	return (true);
+int		Server::openSocket() 
+{
+	int		socket_fd;
+	socket_fd = socket(PF_INET, SOCK_STREAM, 0);
+	if (socket_fd == -1)
+		throw std::runtime_error("Error");
+	int val = 1;
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)))
+		throw std::runtime_error("Error while setting socket options.");
+	if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) < 0) //Set listening FD to non-blocking
+		throw std::runtime_error("Error");
+
+	t_addrin serv_addr;
+	std::memset(&serv_addr, 0, sizeof(t_addrin));
+	serv_addr.sin_family = AF_INET;					//Internet protocol
+	serv_addr.sin_port = htons(_port);
+	serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
+	// serv_addr.sin_addr.s_addr = INADDR_ANY;
+	if (bind(socket_fd, reinterpret_cast<t_addr*>(&serv_addr), sizeof(t_addr)))
+		throw std::runtime_error("Error");
+	
+	if (listen(socket_fd, 10) < 0)						//Set listening FD to listen
+		throw std::runtime_error("Error");
+	return (socket_fd);
 }
 
-int		Server::pollClients() {
-	int pollout = poll(_fd.data(), _fd.size(), 1000);
-	if (pollout < 0)
-		return (-1);
-	if (pollout > 0) {
-		for (t_fdv::iterator it = _fd.begin() + 1; it < _fd.end(); it++) {
-			//	Incoming data --> Add to data queue
-			if (it->revents & POLLIN) {
-				char	buf[2000];
-				int		len = recv(it->fd, buf, 1999, 0);
-				buf[len] = '\0';
-				t_str	message(buf);
-				message = message.substr(0, message.find('\n'));
-				__queue(it->fd, message);
-			}
-			//	Disconnected file descriptor --> Remove client
-			if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
+void		Server::run() 
+{
+	t_fd	server_fd = {_socket, POLLIN, 0};
+	_fd.push_back(server_fd);
+	while (1) 
+	{
+		t_fdv::iterator it_end = _fd.end();
+		if (poll(_fd.begin().base(), _fd.size(), -1) < 0)
+			throw std::runtime_error("Error");
+		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
+			if (it->revents == 0)
+				continue;
+			if ((it->revents & POLLHUP) == POLLHUP) {
 				std::cout << "FD " << it->fd << " disconnected!" << std::endl;
 				disconnectClient(it->fd);
-				_fd.erase(it);
-				it--;
+				break ;
+			}
+			if (it->revents & POLLIN) {
+				if (it->fd == _socket) {
+					connectClient();
+					break ;
+				}
+				clientMessage(it->fd); 
 			}
 		}
-		//	New connection --> Add client and add to connection queue
-		if (_fd[0].revents & POLLIN) {
-			if (!__addclient())
-				throw (connectionError());
+	}	
+}
+
+
+std::string		Server::readMessage(int fd)
+{
+	t_str	message;
+	char	buf[100];
+
+	bzero(buf, 100);
+	while (!std::strstr(buf, "\n"))
+	{
+		if (recv(fd, buf, 100, 0) < 0)
+		{
+			if (errno != EWOULDBLOCK)
+				throw (std::runtime_error("Error with reading buf from client"));
 		}
-		//	Socket disconnected --> ???
-		if (_fd[0].revents & (POLLERR | POLLHUP | POLLNVAL))
-			return (-1);
+		message.append(buf);
 	}
-	return (pollout);
+	// __queue(fd, message);
+	std::cout << "Client #" << fd << " :" << message ;
+	return (message);
 }
 
-void	Server::disconnectClient(int fd) {
-	t_conn	conn;
-	conn.first = fd;
-	conn.second = false;
-	_connq.push(conn);
-	close(fd);
-	_addrmap.erase(fd);
+void	Server::clientMessage(int fd)
+{
+	// ClientAttr *client = _clients.at(fd);
+	broadcast(fd, readMessage(fd));
 }
 
-int		Server::getConnections(t_conn& conn) {
-	int	siz = _connq.size();
-	if (siz) {
-		conn = _connq.front();
-		_connq.pop();
+void	Server::broadcast(int fd, std::string message)
+{
+	// std::stringstream ss;
+	std::ostringstream ss;
+
+	ss << "From client #" << fd << " : "<< message;
+
+	std::map<int, ClientAttr*>::iterator it;
+
+	for (it = (_clients.begin()); it != _clients.end(); ++it)
+	{
+		if (it->first == fd || it->first == _socket)
+			continue;
+		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
 	}
-	return (siz);
 }
+
+
+void	Server::disconnectClient(int fd) 
+{
+	ClientAttr* client = _clients.at(fd);
+	_clients.erase(fd);
+	t_fdv::iterator it;
+	for (it = _fd.begin(); it != _fd.end(); it++)
+	{
+		if (it->fd == fd)
+		{
+			_fd.erase(it);
+			close(fd);
+			break ;
+		}
+	}
+	delete client;
+}
+
+// int		Server::getConnections(t_conn& conn) {
+// 	int	siz = _connq.size();
+// 	if (siz) {
+// 		conn = _connq.front();
+// 		_connq.pop();
+// 	}
+// 	return (siz);
+// }
 
 int		Server::getQueuedData(t_datap& data) {
-
 	int siz = _dataq.size();
 	if (siz) {
 		data = _dataq.front();

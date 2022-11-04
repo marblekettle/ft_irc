@@ -14,9 +14,9 @@ class ServerAttr
 	private:
 
 		// std::string					_host;
-		uint32_t						_port;
-		std::string						_password;
-		std::map<std::string, Client*>	_clients;
+		uint32_t					_port;
+		std::string					_password;
+		std::map<int, ClientAttr*>	_clients;
 
 		ServerAttr();
 
@@ -36,4 +36,7 @@ class ServerAttr
 
 std::ostream &			operator<<( std::ostream & o, ServerAttr const & i );
 
-#endif //* ****************************************************** SERVER_H *
+#endif /* ****************************************************** SERVERATTR_H */
+
+
+

@@ -1,4 +1,15 @@
+<<<<<<< HEAD
 NAME		=	ircserv
+=======
+NAME = ircserv
+CC = c++
+FLAGS = -Wall -Wextra -std=c++98
+SRC = 		main.cpp \
+			Server.cpp \
+			ClientAttr.cpp \
+			ServerAttr.cpp \
+			Channel.cpp	
+>>>>>>> b2e3e107faa7d08efc8f515e8162d5411a1c6054
 
 SRC_DIR		=	src/
 HEADER_DIR	=	include/
