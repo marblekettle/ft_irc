@@ -95,7 +95,7 @@ void		Server::run()
 					connectClient();
 					break ;
 				}
-				clientMessage(it->fd); 
+				clientMessage(it->fd);
 			}
 		}
 	}	
