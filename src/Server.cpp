@@ -1,7 +1,7 @@
 #include <sstream>
 #include "Server.hpp"
 
-bool	Server::__addclient() 
+bool	Server::connectClient() 
 {
 	int	fd;
 	t_addr	addr;								//IP address stored in here
@@ -16,15 +16,16 @@ bool	Server::__addclient()
 	}
 	fcntl(fd, F_SETFL, O_NONBLOCK);	//Set FD to non-blocking
 	t_fd	pollfd = {fd, POLLIN, 0};
-	pollfd.events = POLLIN | POLLOUT;		//Allow for sending AND receiving data
+	// pollfd.events = (POLLIN | POLLOUT);		//Allow for sending AND receiving data
+	pollfd.events = (POLLIN);		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
+	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
 	// char hostname[NI_MAXHOST];
 	// if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
 	// 	0)
-	// 	throw std::runtime_error("Error while getting hostname on new client.");
+	// 	throw std::runtime_error("Error");
 	ClientAttr* client = new ClientAttr(fd);
 	_clients.insert(std::make_pair(fd, client));
-
 	std::cout << "client #" << fd << " is connected" << std::endl;
 	return (true);
 }
@@ -62,8 +63,8 @@ int		Server::openSocket()
 	std::memset(&serv_addr, 0, sizeof(t_addrin));
 	serv_addr.sin_family = AF_INET;					//Internet protocol
 	serv_addr.sin_port = htons(_port);
-	// serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
-	serv_addr.sin_addr.s_addr = INADDR_ANY;	//Localhost/127.0.0.1
+	serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
+	// serv_addr.sin_addr.s_addr = INADDR_ANY;
 	if (bind(socket_fd, reinterpret_cast<t_addr*>(&serv_addr), sizeof(t_addr)))
 		throw std::runtime_error("Error");
 	
@@ -72,19 +73,16 @@ int		Server::openSocket()
 	return (socket_fd);
 }
 
-
-/// @brief 
 void		Server::run() 
 {
 	t_fd	server_fd = {_socket, POLLIN, 0};
 	_fd.push_back(server_fd);
 	while (1) 
 	{
+		t_fdv::iterator it_end = _fd.end();
 		if (poll(_fd.begin().base(), _fd.size(), -1) < 0)
 			throw std::runtime_error("Error");
-		for (t_fdv::iterator it = _fd.begin() + 1; it < _fd.end(); it++) {
-
-			std::cout << "in for loop" << std::endl;
+		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
 			if (it->revents == 0)
 				continue;
 			if ((it->revents & POLLHUP) == POLLHUP) {
@@ -92,27 +90,19 @@ void		Server::run()
 				disconnectClient(it->fd);
 				break ;
 			}
-			if ((it->revents & POLLIN) == POLLIN)
-			{
-				if (it->fd == _socket)
-				{
-					if (!__addclient())
-						break ;
+			if (it->revents & POLLIN) {
+				if (it->fd == _socket) {
+					connectClient();
+					break ;
 				}
-				char	buf[2000];
-				int		len = recv(it->fd, buf, 1999, 0);
-				buf[len] = '\0';
-				t_str	message(buf);
-				message = message.substr(0, message.find('\n'));
-				__queue(it->fd, message);
-				// readMessage(it->fd);
+				clientMessage(it->fd); 
 			}
-
 		}
-		
-	}
+	}	
 }
-void		Server::readMessage(int fd)
+
+
+std::string		Server::readMessage(int fd)
 {
 	t_str	message;
 	char	buf[100];
@@ -128,8 +118,34 @@ void		Server::readMessage(int fd)
 		message.append(buf);
 	}
 	// __queue(fd, message);
-	std::cout << message << std::endl;
+	std::cout << "Client #" << fd << " :" << message ;
+	return (message);
 }
+
+void	Server::clientMessage(int fd)
+{
+	// ClientAttr *client = _clients.at(fd);
+	broadcast(fd, readMessage(fd));
+}
+
+void	Server::broadcast(int fd, std::string message)
+{
+	// std::stringstream ss;
+	std::ostringstream ss;
+
+	ss << "From client #" << fd << " : "<< message;
+
+	std::map<int, ClientAttr*>::iterator it;
+
+	for (it = (_clients.begin()); it != _clients.end(); ++it)
+	{
+		if (it->first == fd || it->first == _socket)
+			continue;
+		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
+	}
+}
+
+
 void	Server::disconnectClient(int fd) 
 {
 	ClientAttr* client = _clients.at(fd);
@@ -147,14 +163,14 @@ void	Server::disconnectClient(int fd)
 	delete client;
 }
 
-int		Server::getConnections(t_conn& conn) {
-	int	siz = _connq.size();
-	if (siz) {
-		conn = _connq.front();
-		_connq.pop();
-	}
-	return (siz);
-}
+// int		Server::getConnections(t_conn& conn) {
+// 	int	siz = _connq.size();
+// 	if (siz) {
+// 		conn = _connq.front();
+// 		_connq.pop();
+// 	}
+// 	return (siz);
+// }
 
 int		Server::getQueuedData(t_datap& data) {
 	int siz = _dataq.size();
