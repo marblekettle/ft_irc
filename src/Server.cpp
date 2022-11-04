@@ -1,6 +1,28 @@
 #include <sstream>
 #include "Server.hpp"
 
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
+
+Server::Server(t_port port, t_str password):
+	_port(port),
+	_password(password),
+	_ready(false) 
+{
+	_socket = openSocket();
+}
+
+/*
+** -------------------------------- DESTRUCTOR --------------------------------
+*/
+
+Server::~Server(){}
+
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
+
 bool	Server::connectClient() 
 {
 	int	fd;
@@ -24,7 +46,7 @@ bool	Server::connectClient()
 	// if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
 	// 	0)
 	// 	throw std::runtime_error("Error");
-	ClientAttr* client = new ClientAttr(fd);
+	Client* client = new Client(fd);
 	_clients.insert(std::make_pair(fd, client));
 	std::cout << "client #" << fd << " is connected" << std::endl;
 	return (true);
@@ -36,16 +58,6 @@ void	Server::__queue(int fd, t_str data) {
 	datap.second = data;
 	_dataq.push(datap);
 }
-
-Server::Server(t_port port, t_str passwd):
-	_port(port),
-	_passwd(passwd),
-	_ready(false) 
-{
-	_socket = openSocket();
-}
-
-Server::~Server(){}
 
 int		Server::openSocket() 
 {
@@ -124,7 +136,7 @@ std::string		Server::readMessage(int fd)
 
 void	Server::clientMessage(int fd)
 {
-	// ClientAttr *client = _clients.at(fd);
+	// Client *client = _clients.at(fd);
 	broadcast(fd, readMessage(fd));
 }
 
@@ -135,7 +147,7 @@ void	Server::broadcast(int fd, std::string message)
 
 	ss << "From client #" << fd << " : "<< message;
 
-	std::map<int, ClientAttr*>::iterator it;
+	std::map<int, Client*>::iterator it;
 
 	for (it = (_clients.begin()); it != _clients.end(); ++it)
 	{
@@ -145,10 +157,9 @@ void	Server::broadcast(int fd, std::string message)
 	}
 }
 
-
 void	Server::disconnectClient(int fd) 
 {
-	ClientAttr* client = _clients.at(fd);
+	Client* client = _clients.at(fd);
 	_clients.erase(fd);
 	t_fdv::iterator it;
 	for (it = _fd.begin(); it != _fd.end(); it++)
@@ -163,14 +174,14 @@ void	Server::disconnectClient(int fd)
 	delete client;
 }
 
-// int		Server::getConnections(t_conn& conn) {
-// 	int	siz = _connq.size();
-// 	if (siz) {
-// 		conn = _connq.front();
-// 		_connq.pop();
-// 	}
-// 	return (siz);
-// }
+/*
+** --------------------------------- MUTATORS ---------------------------------
+*/
+
+
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
 
 int		Server::getQueuedData(t_datap& data) {
 	int siz = _dataq.size();
@@ -189,6 +200,38 @@ t_str	Server::getIP(int fd) {
 		return ("");
 	}
 }
+
+std::string		Server::getPassword() const
+{
+	return (this->_password);
+}
+
+uint32_t	Server::getPort() const
+{
+	return (this->_port);
+}
+
+Client*		Server::getClient(std::string& username) const
+{
+	t_clients::const_iterator it;
+
+	for (it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (it->second->getUser() == username)
+			return (it->second);
+	}
+	
+	return (nullptr);
+}
+
+// int		Server::getConnections(t_conn& conn) {
+// 	int	siz = _connq.size();
+// 	if (siz) {
+// 		conn = _connq.front();
+// 		_connq.pop();
+// 	}
+// 	return (siz);
+// }
 
 const char*	Server::socketFailedError::what() const throw() {
 	return ("Socket failed");

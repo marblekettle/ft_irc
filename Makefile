@@ -1,15 +1,4 @@
-<<<<<<< HEAD
 NAME		=	ircserv
-=======
-NAME = ircserv
-CC = c++
-FLAGS = -Wall -Wextra -std=c++98
-SRC = 		main.cpp \
-			Server.cpp \
-			ClientAttr.cpp \
-			ServerAttr.cpp \
-			Channel.cpp	
->>>>>>> b2e3e107faa7d08efc8f515e8162d5411a1c6054
 
 SRC_DIR		=	src/
 HEADER_DIR	=	include/
@@ -18,7 +7,6 @@ BIN_DIR		=	bin/
 BIN			=	$(BIN_DIR)$(NAME)
 
 SRC			=	Server.cpp \
-				ServerAttr.cpp \
 				Client.cpp \
 				Channel.cpp \
 				Command.cpp \
@@ -27,7 +15,6 @@ SRC			=	Server.cpp \
 				main.cpp \
 
 HEADERS		=	Server.hpp \
-				ServerAttr.hpp \
 				Client.hpp \
 				Channel.hpp \
 				Command.hpp \
