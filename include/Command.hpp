@@ -9,7 +9,7 @@ public:
 	virtual			~Command( ) {}
 
 	virtual void	execute() = 0;
-	void			addToQueue( std::queue<Command *> & queue );
+//	void			addToQueue( std::queue<Command *> & queue );
 
 protected:
 					Command( ) {}

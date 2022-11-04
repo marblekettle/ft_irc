@@ -1,5 +1,8 @@
+#include <iostream>
 #include <sstream>
 #include "Server.hpp"
+
+#include "SendMessageCommand.hpp"
 
 bool	Server::connectClient() 
 {
@@ -24,7 +27,7 @@ bool	Server::connectClient()
 	// if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
 	// 	0)
 	// 	throw std::runtime_error("Error");
-	ClientAttr* client = new ClientAttr(fd);
+	Client* client = new Client(fd);
 	_clients.insert(std::make_pair(fd, client));
 	std::cout << "client #" << fd << " is connected" << std::endl;
 	return (true);
@@ -124,7 +127,7 @@ std::string		Server::readMessage(int fd)
 
 void	Server::clientMessage(int fd)
 {
-	// ClientAttr *client = _clients.at(fd);
+	// Client *client = _clients.at(fd);
 	broadcast(fd, readMessage(fd));
 }
 
@@ -135,7 +138,7 @@ void	Server::broadcast(int fd, std::string message)
 
 	ss << "From client #" << fd << " : "<< message;
 
-	std::map<int, ClientAttr*>::iterator it;
+	std::map<int, Client*>::iterator it;
 
 	for (it = (_clients.begin()); it != _clients.end(); ++it)
 	{
@@ -148,7 +151,7 @@ void	Server::broadcast(int fd, std::string message)
 
 void	Server::disconnectClient(int fd) 
 {
-	ClientAttr* client = _clients.at(fd);
+	Client* client = _clients.at(fd);
 	_clients.erase(fd);
 	t_fdv::iterator it;
 	for (it = _fd.begin(); it != _fd.end(); it++)
@@ -196,4 +199,23 @@ const char*	Server::socketFailedError::what() const throw() {
 
 const char*	Server::connectionError::what() const throw() {
 	return ("Connection error");
+}
+
+int	Server::test() {
+
+	_clients.insert(std::make_pair(3, new Client(3)));
+	_clients[3]->setNick("Bob");
+	_clients.insert(std::make_pair(4, new Client(4)));
+	_clients[4]->setNick("Eve");
+	_clients.insert(std::make_pair(5, new Client(5)));
+	_clients[5]->setNick("Stef");
+
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[4], _clients[3], "testcommand"));
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[5], _clients[3], "testcommand2"));
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[3], _clients[3], "testcommand3"));
+
+	_clients[3]->getNextCommand()->execute();
+	_clients[3]->getNextCommand()->execute();
+	_clients[3]->getNextCommand()->execute();
+	return (0);
 }

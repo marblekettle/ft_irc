@@ -16,7 +16,7 @@ class ServerAttr
 		// std::string					_host;
 		uint32_t					_port;
 		std::string					_password;
-		std::map<int, ClientAttr*>	_clients;
+		std::map<int, Client*>		_clients;
 
 		ServerAttr();
 

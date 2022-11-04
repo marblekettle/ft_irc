@@ -33,10 +33,10 @@ class Client
 		std::string			getUser() const;
 		std::string			getBuffer() const;
 
-		void				setNick(std::string& nick);
-		void				setUser(std::string& user);
-		void				setBuffer(std::string& user);
-		void				appendBuffer(std::string& user);
+		void				setNick(std::string const & nick);
+		void				setUser(std::string const & user);
+		void				setBuffer(std::string const & user);
+		void				appendBuffer(std::string const & user);
 		void				clearBuffer();
 
 		void				sendMessage(Client * sender, std::string message);
