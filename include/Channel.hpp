@@ -12,7 +12,7 @@ class Channel
 	private:
 
 		const std::string			_name;
-		Client 						_admin;
+		Client *					_admin;
 		std::vector<Client*>		_clientList;
 		std::string					_password;
 

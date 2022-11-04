@@ -1,5 +1,5 @@
-#ifndef FT_IRC_SEND_MESSAGE_COMMAND_HPP
-#define FT_IRC_SEND_MESSAGE_COMMAND_HPP
+#ifndef MESSAGE_COMMAND_HPP
+#define MESSAGE_COMMAND_HPP
 
 //# include <Command.hpp>
 //# include <Client.hpp>
@@ -22,4 +22,4 @@ private:
 
 };
 
-#endif //FT_IRC_JOIN_COMMAND_HPP
+#endif
