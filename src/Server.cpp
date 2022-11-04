@@ -13,7 +13,7 @@ bool	Server::__addclient() {
 		return (false);
 	}
 	fcntl(pollfd.fd, F_SETFL, O_NONBLOCK);	//Set FD to non-blocking
-	pollfd.events = POLLIN | POLLOUT;		//Allow for sending AND receiving data
+	pollfd.events = POLLIN;		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
 	t_conn	conn;
@@ -49,7 +49,7 @@ bool	Server::openSocket(t_port port, t_str passwd) {
 	std::memset(&addr, 0, sizeof(t_addrin));
 	addr.sin_family = AF_INET;					//Internet protocol
 	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
+	addr.sin_addr.s_addr = INADDR_ANY;	//Localhost/127.0.0.1
 	if (bind(fd.fd, reinterpret_cast<t_addr*>(&addr), sizeof(t_addr)))
 		return (false);
 	if (_fd.size() == 0)						//Add new socket, or replace old one?

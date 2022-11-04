@@ -13,8 +13,12 @@ int	main(int ac, char** av) {
 		try {
 			Server	server(port, passwd);
 			while (1) {
-				if (server.pollClients() < 0)
+				int	pout = server.pollClients();
+				std::cerr << pout;
+				if (pout < 0)
 					throw (Server::connectionError());
+				if (pout == 0)
+					continue ;
 				t_datap	data;
 				while (1) {
 					int a = server.getQueuedData(data);
