@@ -11,23 +11,25 @@
 # include <exception>		//std::exception
 # include "Types.hpp"
 # include "Client.hpp"
+# include "Channel.hpp"
 # include <netdb.h>
 # include <vector>
 # include <map>
 
 class Server {
 	private:
-		int			_socket;
-		t_port		_port;		//Port number
-		t_str		_password;	//Password
-		bool		_ready;		//Polling may NEVER occur unless this is true
-		t_fdv		_fd;		//Vector of pollfd structs for polling
-		t_addrmap	_addrmap;	//Lookup for struct sockaddr_in
-		t_connq		_connq;		//Queue of connections
-		t_dataq		_dataq;		//Queue of data
-		void	__queue(int fd, t_str data);	//Adds data to the queue
-		t_clients	_clients;
+		int									_socket;
+		t_port								_port;		//Port number
+		t_str								_passwd;	//Password
+		bool								_ready;		//Polling may NEVER occur unless this is true
+		t_fdv								_fd;		//Vector of pollfd structs for polling
+		t_addrmap							_addrmap;	//Lookup for struct sockaddr_in
+		t_connq								_connq;		//Queue of connections
+		t_dataq								_dataq;		//Queue of data
+		void								__queue(int fd, t_str data);	//Adds data to the queue
 
+		std::map<int, Client*>				_clients;
+		std::map<std::string, Channel *>	_channels;
 	public:
 		Server(t_port port = 6667, t_str password = "");
 		~Server();
@@ -35,7 +37,9 @@ class Server {
 												//	Return: Socket successfully created or not
 		void	run();							//Check for all file descriptors if data is available or connection dropped
 												//	Return: Number of connections that returned data (i.e. return value of poll())
+		int	test();
 		bool	connectClient();				//Called when a connection is opened
+		void	addChannel(Channel * channel);
 		void	disconnectClient(int fd);		//Remove a specific file descriptor (e.g. when KILL is called)
 		int		getConnections(t_conn& conn);	//Get connection status from queue of new connections (placed inside reference)
 												//	Return: Queued connections before calling

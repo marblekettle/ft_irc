@@ -13,7 +13,7 @@ int	main(int ac, char** av) {
 		t_port	port = static_cast<t_port>(std::stoi(portstr));
 		try {
 			Server	server(port, passwd);
-			server.run();
+			server.test();
 		} catch (std::exception &e) {
 			std::cerr << e.what() << std::endl;
 		}

@@ -58,6 +58,7 @@ void	Client::sendMessage( Client *sender, std::string message ) {
 
 	std::cout << "sendMessage (from: " << sender->getNick() << ") : " << message << std::endl;
 	// TODO implement sending
+	_commandQueue.pop();
 }
 
 Command *	Client::getNextCommand( ) {
@@ -76,17 +77,17 @@ void	Client::addCommandToQueue( Command * command ) {
 ** --------------------------------- MUTATORS ---------------------------------
 */
 
-void	Client::setNick(std::string& nick)
+void	Client::setNick(std::string const & nick)
 {
 	this->_nickname = nick;
 }
 
-void	Client::setUser(std::string& user)
+void	Client::setUser(std::string const & user)
 {
 	this->_username = user;
 }
 
-void	Client::setBuffer(std::string& buf)
+void	Client::setBuffer(std::string const & buf)
 {
 	this->_buffer = buf;
 }
@@ -96,7 +97,7 @@ void	Client::clearBuffer()
 	this->_buffer.clear();
 }
 
-void	Client::appendBuffer(std::string& buf)
+void	Client::appendBuffer(std::string const & buf)
 {
 	this->_buffer += buf;
 }

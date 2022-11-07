@@ -8,7 +8,7 @@ template<typename Receiver>
 class SendMessageCommand : public Command {
 
 public:
-					SendMessageCommand(Client * sender, Receiver * receiver, std::string message );
+					SendMessageCommand(Client * sender, Receiver receiver, std::string message );
 
 	virtual void	execute( );
 
@@ -17,7 +17,7 @@ protected:
 private:
 
 	Client *		_sender;
-	Receiver *		_receiver;
+	Receiver		_receiver;
 	std::string		_message;
 
 };

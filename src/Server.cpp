@@ -1,5 +1,7 @@
+#include <iostream>
 #include <sstream>
 #include "Server.hpp"
+#include "SendMessageCommand.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -50,6 +52,12 @@ bool	Server::connectClient()
 	_clients.insert(std::make_pair(fd, client));
 	std::cout << "client #" << fd << " is connected" << std::endl;
 	return (true);
+}
+
+void	Server::addChannel(Channel * channel) {
+
+	_channels.insert(std::make_pair(channel->getName(), channel));
+	std::cout << "Channel: '" << channel->getName() << "' added" << std::endl;
 }
 
 void	Server::__queue(int fd, t_str data) {
@@ -239,4 +247,32 @@ const char*	Server::socketFailedError::what() const throw() {
 
 const char*	Server::connectionError::what() const throw() {
 	return ("Connection error");
+}
+
+int	Server::test() {
+
+	_clients.insert(std::make_pair(3, new Client(3)));
+	_clients[3]->setNick("Bob");
+	_clients.insert(std::make_pair(4, new Client(4)));
+	_clients[4]->setNick("Eve");
+	_clients.insert(std::make_pair(5, new Client(5)));
+	_clients[5]->setNick("Stef");
+
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[4], _clients[3], "testcommand"));
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[5], _clients[3], "testcommand2"));
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[3], _clients[3], "testcommand3"));
+
+	_clients[3]->getNextCommand()->execute();
+	_clients[3]->getNextCommand()->execute();
+	_clients[3]->getNextCommand()->execute();
+
+	addChannel(new Channel("new channel", "pass", _clients[3]));
+//	_channels["new channel"]->join(_clients[4]);
+	_channels["new channel"]->join(_clients[5]);
+	std::vector<Client *> & list =_channels["new channel"]->getClientList();
+	for (std::vector<Client *>::iterator it = list.begin(); it < list.end(); it++)
+	{
+		std::cout << (*it)->getNick() << std::endl;
+	}
+	return (0);
 }
