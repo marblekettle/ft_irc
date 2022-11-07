@@ -1,7 +1,7 @@
 //	Types.hpp : A collection of typedefs of commonly used or wordy datatypes and their required includes
 
-#ifndef TYPES_HPP
-# define TYPES_HPP
+#ifndef FT_IRC_TYPES_HPP
+# define FT_IRC_TYPES_HPP
 # include <iostream>		//std::cout, std::string
 # include <netinet/in.h>	//inet_ntoa
 # include <vector>

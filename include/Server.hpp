@@ -1,7 +1,7 @@
 // Server.hpp : An object to manage connections and datastreams, for outputting data and linking clients to IP addresses and file descriptors
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef FT_IRC_SERVER_HPP
+# define FT_IRC_SERVER_HPP
 # include <sys/socket.h>	//socket()
 # include <arpa/inet.h>		//htons(), htonl()
 # include <poll.h>			//poll(), struct pollfd

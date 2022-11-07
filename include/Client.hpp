@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#ifndef FT_IRC_CLIENT_HPP
+# define FT_IRC_CLIENT_HPP
 
 # include <Command.hpp>
 # include <Types.hpp>

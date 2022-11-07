@@ -1,5 +1,5 @@
-#ifndef SERVERATTR_HPP
-# define SERVERATTR_HPP
+#ifndef FT_IRC_SERVERATTR_HPP
+# define FT_IRC_SERVERATTR_HPP
 
 # include <iostream>
 # include <string>
