@@ -7,6 +7,7 @@
 # include <vector>
 # include <queue>			
 # include <map>
+# include "Client.hpp"
 
 typedef	std::string				t_str;		//String
 typedef unsigned int			t_ip;		//IPv4 address stored as int (using htonl())
@@ -20,5 +21,5 @@ typedef std::pair<int, t_str>	t_datap;	//Pair containing datastream input and co
 typedef std::queue<t_datap>		t_dataq;	//Queue of data from datastreams
 typedef std::pair<int, bool>	t_conn;		//Pair containing a file descriptor, plus true upon opening, false upon disconnect
 typedef std::queue<t_conn>		t_connq;	//Queue of established/disconnected connections
-
+typedef std::map<int ,Client*>	t_clients;	//Map of connected client pointer with fd as key
 #endif

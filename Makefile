@@ -1,25 +1,66 @@
-NAME = ircserv
-CC = g++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -g
-SRC = Server.cpp main.cpp
-SRCDIR = src/
-OBJ = $(SRC:.cpp=.o)
-HDIR = include
+NAME		=	ircserv
 
-%.o: $(SRCDIR)%.cpp
-	$(CC) $(FLAGS) -I$(HDIR) -c $< -o $@
+SRC_DIR		=	src/
+HEADER_DIR	=	include/
+OBJ_DIR		=	obj/
+BIN_DIR		=	bin/
+BIN			=	$(BIN_DIR)$(NAME)
 
-$(NAME): $(OBJ)
-	$(CC) $(FLAGS) -I$(HDIR) $(OBJ) -o $(NAME)
+SRC			=	Server.cpp \
+				Client.cpp \
+				Channel.cpp \
+				Command.cpp \
+				JoinCommand.cpp \
+				SendMessageCommand.cpp \
+				main.cpp \
 
-all: $(NAME)
+HEADERS		=	Server.hpp \
+				Client.hpp \
+				Channel.hpp \
+				Command.hpp \
+				JoinCommand.hpp \
+				SendMessageCommand.hpp \
+
+OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
+
+INCL_DIRS	=	$(HEADER_DIR)
+INCLUDES	=	$(addprefix -I, $(INCL_DIRS))
+
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -pedantic # -g -fsanitize=address
+CC			=	c++
+
+ifeq ("$(VERBOSE)","1")
+Q :=
+VECHO = @echo
+else
+Q := @
+VECHO = @echo
+endif
+
+all: $(BIN)
+
+$(BIN): $(OBJ)
+	$(Q)mkdir -p $(@D)
+	$(VECHO)
+	$(VECHO) "\033[36mLinking binary file:     \033[0m$@ 🚨"
+	$(VECHO)
+	$(Q)$(CC) $^ $(CFLAGS) -o $@
+
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(addprefix $(HEADER_DIR), $(HEADERS))
+	$(Q)mkdir -p $(@D)
+	$(VECHO) "\033[34mCompiling object file:   \033[0m$@"
+	$(Q)$(CC) -c $< $(CFLAGS) -o $@ $(INCLUDES)
 
 clean:
-	rm -rf $(OBJ)
+	$(VECHO) "\033[31mRemoving object files\033[0m"
+	$(VECHO)
+	$(Q)rm -rf $(OBJ_DIR)
 
 fclean: clean
-	rm -rf $(NAME)
+	$(VECHO) "\033[31mRemoving binary\033[0m"
+	$(VECHO)
+	$(Q)rm -f $(BIN)
 
-re: fclean all
+re: clean all
 
-.PHONY: clean fclean re
+.PHONY:	all clean fclean re
