@@ -2,6 +2,7 @@
 # define CLIENT_HPP
 
 # include <Command.hpp>
+# include <Types.hpp>
 # include <iostream>
 # include <string>
 # include <queue>
@@ -18,6 +19,12 @@ class Client
 		std::string				_buffer;
 		std::queue<Command *>	_commandQueue;
 
+//	____Experimental____
+
+		std::queue<t_str>		_responseQueue;
+
+//	____________________
+
 		Client();
 
 	public:
@@ -27,6 +34,13 @@ class Client
 		Client &			operator=( Client const & rhs );
 							~Client();
 
+//	____Experimental____
+
+		void				queueResponse(const t_str& message);
+		int					nResponses();
+		t_str				popResponse();
+
+//	____________________
 
 		int					getFd();
 		std::string			getNick() const;

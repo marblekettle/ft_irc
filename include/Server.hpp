@@ -28,6 +28,11 @@ class Server {
 		t_dataq								_dataq;		//Queue of data
 		void								__queue(int fd, t_str data);	//Adds data to the queue
 
+//	____Experimental____
+		bool		_sendready;
+		void		__togglepoll();
+
+//	____________________
 		std::map<int, Client*>				_clients;
 		std::map<std::string, Channel *>	_channels;
 	public:

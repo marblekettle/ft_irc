@@ -127,3 +127,21 @@ std::string	Client::getBuffer() const
 }
 
 /* ************************************************************************** */
+
+//	____Experimental____
+
+void	Client::queueResponse(const t_str& message) {
+	_responseQueue.push(message);
+}
+
+int		Client::nResponses() {
+	return (_responseQueue.size());
+}
+
+t_str	Client::popResponse() {
+	t_str	response = _responseQueue.front();
+	_responseQueue.pop();
+	return (response);
+}
+
+//	____________________
