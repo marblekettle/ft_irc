@@ -11,13 +11,17 @@ Server::Server(t_port port, t_str password):
 	_ready(false) 
 {
 	_socket = openSocket();
+	_handleCommand = new HandleCommand;
 }
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Server::~Server(){}
+Server::~Server()
+{
+	delete _handleCommand;
+}
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -136,13 +140,15 @@ std::string		Server::readMessage(int fd)
 
 void	Server::clientMessage(int fd)
 {
-	// Client *client = _clients.at(fd);
-	broadcast(fd, readMessage(fd));
+	Client *client = _clients.at(fd);
+	std::string message;
+	message = readMessage(fd);
+	_handleCommand->call(message, client);
+	// broadcast(fd, readMessage(fd));
 }
 
 void	Server::broadcast(int fd, std::string message)
 {
-	// std::stringstream ss;
 	std::ostringstream ss;
 
 	ss << "From client #" << fd << " : "<< message;

@@ -14,19 +14,22 @@
 # include <netdb.h>
 # include <vector>
 # include <map>
+# include "HandleCommand.hpp"
 
 class Server {
 	private:
-		int			_socket;
-		t_port		_port;		//Port number
-		t_str		_password;	//Password
-		bool		_ready;		//Polling may NEVER occur unless this is true
-		t_fdv		_fd;		//Vector of pollfd structs for polling
-		t_addrmap	_addrmap;	//Lookup for struct sockaddr_in
-		t_connq		_connq;		//Queue of connections
-		t_dataq		_dataq;		//Queue of data
+		int				_socket;
+		t_port			_port;		//Port number
+		t_str			_password;	//Password
+		bool			_ready;		//Polling may NEVER occur unless this is true
+		t_fdv			_fd;		//Vector of pollfd structs for polling
+		t_addrmap		_addrmap;	//Lookup for struct sockaddr_in
+		t_connq			_connq;		//Queue of connections
+		t_dataq			_dataq;		//Queue of data
+		t_clients		_clients;
+		HandleCommand* 	_handleCommand;
+
 		void	__queue(int fd, t_str data);	//Adds data to the queue
-		t_clients	_clients;
 
 	public:
 		Server(t_port port = 6667, t_str password = "");

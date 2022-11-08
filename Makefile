@@ -10,9 +10,12 @@ SRC			=	Server.cpp \
 				Client.cpp \
 				Channel.cpp \
 				Command.cpp \
-				JoinCommand.cpp \
-				SendMessageCommand.cpp \
 				main.cpp \
+				HandleCommand.cpp \
+				utils.cpp
+
+				#SendMessageCommand.cpp
+				#JoinCommand.cpp 
 
 HEADERS		=	Server.hpp \
 				Client.hpp \
