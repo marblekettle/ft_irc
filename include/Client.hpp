@@ -15,26 +15,29 @@ class Client
 		const int 				_fd;
 		std::string				_nickname;
 		std::string				_username;
+		std::string				_realname;
 		std::string				_buffer;
+		const std::string		_host;
+		bool					_isAuthorized;
 		std::queue<Command *>	_commandQueue;
-
-		Client();
 
 	public:
 
-							Client(int const fd);
-							Client(Client const & src);
-		Client &			operator=( Client const & rhs );
-							~Client();
+		Client(int const fd, const std::string& host);
+		~Client();
 
 
 		int					getFd();
 		std::string			getNick() const;
 		std::string			getUser() const;
+		std::string			getHost() const;
+		std::string			getRealName() const;
 		std::string			getBuffer() const;
+		std::string			getPrefix();
 
 		void				setNick(std::string& nick);
 		void				setUser(std::string& user);
+		void				setRealName(std::string& user);
 		void				setBuffer(std::string& user);
 		void				appendBuffer(std::string& user);
 		void				clearBuffer();

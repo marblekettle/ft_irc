@@ -46,13 +46,14 @@ bool	Server::connectClient()
 	pollfd.events = (POLLIN);		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
-	// char hostname[NI_MAXHOST];
-	// if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
-	// 	0)
-	// 	throw std::runtime_error("Error");
-	Client* client = new Client(fd);
+	char hostname[NI_MAXHOST];
+	if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
+		0)
+		throw std::runtime_error("Error");
+	Client* client = new Client(fd, hostname);
 	_clients.insert(std::make_pair(fd, client));
 	std::cout << "client #" << fd << " is connected" << std::endl;
+	std::cout << "Host: " << client->getHost() << std::endl;
 	return (true);
 }
 

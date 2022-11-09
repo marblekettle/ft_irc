@@ -21,9 +21,17 @@ HandleCommand::~HandleCommand()
 	}
 }
 
+/* The Call member function splits the data from a client by spaces, */
+/* And place them in a vector.										 */
+/* Because the commands of the irc protocol are not case sensitive,  */
+/* they get converted to uppercase and then compared.				 */
+/* The command comes always after the prefix, if not it's a current  */
+/* privat message or current channel message						 */
+
 void	HandleCommand::call(std::string &message, Client* client)
 {
 	(void)client;
+
 	std::vector<std::string> arguments;
 	std::string temp;
 	std::istringstream ssMessage(message);
