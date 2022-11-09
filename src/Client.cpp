@@ -38,10 +38,11 @@ Client::~Client()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Client::sendMessage( Client *sender, std::string message ) {
+void	Client::sendMessage(std::string message ) {
 
-	std::cout << "sendMessage (from: " << sender->getNick() << ") : " << message << std::endl;
-	// TODO implement sending
+	std::stringstream ss;
+	ss << ":" << getPrefix() << " " << message << "\r\n";
+	send(_fd, ss.str().c_str(), ss.str().length(), 0);
 }
 
 Command *	Client::getNextCommand( ) {
@@ -55,6 +56,8 @@ void	Client::addCommandToQueue( Command * command ) {
 
 	_commandQueue.push(command);
 }
+
+
 
 /*
 ** --------------------------------- MUTATORS ---------------------------------

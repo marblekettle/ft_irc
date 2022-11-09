@@ -1,4 +1,3 @@
-#include <sstream>
 #include "Server.hpp"
 
 /*
@@ -11,7 +10,7 @@ Server::Server(t_port port, t_str password):
 	_ready(false) 
 {
 	_socket = openSocket();
-	_handleCommand = new HandleCommand;
+	_handleCommand = new HandleCommand(this);
 }
 
 /*
@@ -47,8 +46,7 @@ bool	Server::connectClient()
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
 	char hostname[NI_MAXHOST];
-	if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
-		0)
+	if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
 		throw std::runtime_error("Error");
 	Client* client = new Client(fd, hostname);
 	_clients.insert(std::make_pair(fd, client));

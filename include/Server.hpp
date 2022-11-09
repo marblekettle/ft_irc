@@ -9,12 +9,21 @@
 # include <unistd.h>		//close()
 # include <cstring>			//memset()
 # include <exception>		//std::exception
-# include "Types.hpp"
-# include "Client.hpp"
 # include <netdb.h>
 # include <vector>
 # include <map>
+# include <cerrno>
+class Server;
+# include "Command.hpp"
 # include "HandleCommand.hpp"
+# include "Client.hpp"
+# include "Types.hpp"
+# include "Channel.hpp"
+
+class Client;
+class Command;
+class HandleCommand;
+class Channel;
 
 class Server {
 	private:

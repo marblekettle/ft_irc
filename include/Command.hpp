@@ -4,67 +4,74 @@
 # include <queue>
 # include <iostream>
 # include <sstream>
+# include "Server.hpp"
 
-class	Command {
 
-public:
-					Command( ) {};
-	virtual			~Command( ) {};
+class	Command
+{
+	
+	protected:
 
-	virtual void	execute() = 0;
-	void			addToQueue( std::queue<Command *> & queue );
+		Server*			_server;
 
-protected:
+	public:
+		explicit		Command(Server *server) : _server(server) {};
+		virtual			~Command() {};
+
+		virtual void	execute(std::vector<std::string> arguments) = 0;
+		// void			addToQueue( std::queue<Command *> & queue );
+
 
 };
 
-class JoinCommand : public Command
+class JoinCommand : virtual public Command
 {
 	private:
 
 	public:
-		JoinCommand();
+		JoinCommand(Server* server);
 		~JoinCommand();
-		void	execute();
+		void	execute(std::vector<std::string> arguments);
 };
+
 class PrivMsgCommand : public Command
 {
 	private:
 
 	public:
-		PrivMsgCommand();
+		PrivMsgCommand(Server* server);
 		~PrivMsgCommand();
-		void	execute();
+		void	execute(std::vector<std::string> arguments);
 };
+
 class KickCommand : public Command
 {
 	private:
 
 	public:
-		KickCommand();
+		KickCommand(Server* server);
 		~KickCommand();
-		void	execute();
+		void	execute(std::vector<std::string> arguments);
 };
+
 class QuitCommand : public Command
 {
 	private:
 
 	public:
-		QuitCommand();
+		QuitCommand(Server* server);
 		~QuitCommand();
-		void	execute();
+		void	execute(std::vector<std::string> arguments);
 };
+
 class ModeCommand : public Command
 {
 	private:
 
 	public:
-		ModeCommand();
+		ModeCommand(Server* server);
 		~ModeCommand();
-		void	execute();
+		void	execute(std::vector<std::string> arguments);
 };
-
-
-
 
 #endif /* COMMAND_HPP */

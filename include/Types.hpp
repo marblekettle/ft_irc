@@ -7,7 +7,7 @@
 # include <vector>
 # include <queue>			
 # include <map>
-# include "Client.hpp"
+# include "Server.hpp"
 
 typedef	std::string				t_str;		//String
 typedef unsigned int			t_ip;		//IPv4 address stored as int (using htonl())

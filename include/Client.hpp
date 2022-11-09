@@ -1,12 +1,14 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include <Command.hpp>
 # include <iostream>
 # include <string>
 # include <queue>
-
+# include <sstream>
+# include <sys/socket.h>
+# include "Server.hpp"
 # define INIT_BUFFER 100
+class Command;
 
 class Client
 {
@@ -42,7 +44,8 @@ class Client
 		void				appendBuffer(std::string& user);
 		void				clearBuffer();
 
-		void				sendMessage(Client * sender, std::string message);
+
+		void				sendMessage(std::string message);
 		Command *			getNextCommand();
 		void				addCommandToQueue( Command * command );
 };

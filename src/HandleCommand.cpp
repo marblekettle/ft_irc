@@ -1,14 +1,14 @@
 #include "HandleCommand.hpp"
 #include "utils.hpp"
 
-HandleCommand::HandleCommand()
+HandleCommand::HandleCommand(Server* server) : _server(server)
 {
-	_commands["/JOIN"] = new JoinCommand;
-	_commands["/PRIVMSG"] = new PrivMsgCommand;
-	_commands["/KICK"] = new KickCommand;
-	_commands["/QUIT"] = new QuitCommand;
-	_commands["/MODE"] = new ModeCommand;
-	_commands["/NICK"] = new ModeCommand;
+	_commands["/JOIN"] = new JoinCommand(_server);
+	_commands["/PRIVMSG"] = new PrivMsgCommand(_server);
+	_commands["/KICK"] = new KickCommand(_server);
+	_commands["/QUIT"] = new QuitCommand(_server);
+	_commands["/MODE"] = new ModeCommand(_server);
+	_commands["/NICK"] = new ModeCommand(_server);
 }
 
 HandleCommand::~HandleCommand()
@@ -45,6 +45,6 @@ void	HandleCommand::call(std::string &message, Client* client)
 	if (_commands.count(temp) > 0)
 	{
 		cmd = _commands.at(temp);
-		cmd->execute();
+		cmd->execute(arguments);
 	}
 }
