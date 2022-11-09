@@ -5,7 +5,7 @@
 # include <iostream>
 # include <sstream>
 # include "Server.hpp"
-
+class Client;
 
 class	Command
 {
@@ -18,7 +18,7 @@ class	Command
 		explicit		Command(Server *server) : _server(server) {};
 		virtual			~Command() {};
 
-		virtual void	execute(std::vector<std::string> arguments) = 0;
+		virtual void	execute(std::vector<std::string>& arguments, Client* client) = 0;
 		// void			addToQueue( std::queue<Command *> & queue );
 
 
@@ -31,7 +31,7 @@ class JoinCommand : virtual public Command
 	public:
 		JoinCommand(Server* server);
 		~JoinCommand();
-		void	execute(std::vector<std::string> arguments);
+		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
 class PrivMsgCommand : public Command
@@ -41,7 +41,7 @@ class PrivMsgCommand : public Command
 	public:
 		PrivMsgCommand(Server* server);
 		~PrivMsgCommand();
-		void	execute(std::vector<std::string> arguments);
+		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
 class KickCommand : public Command
@@ -51,7 +51,7 @@ class KickCommand : public Command
 	public:
 		KickCommand(Server* server);
 		~KickCommand();
-		void	execute(std::vector<std::string> arguments);
+		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
 class QuitCommand : public Command
@@ -61,7 +61,7 @@ class QuitCommand : public Command
 	public:
 		QuitCommand(Server* server);
 		~QuitCommand();
-		void	execute(std::vector<std::string> arguments);
+		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
 class ModeCommand : public Command
@@ -71,7 +71,28 @@ class ModeCommand : public Command
 	public:
 		ModeCommand(Server* server);
 		~ModeCommand();
-		void	execute(std::vector<std::string> arguments);
+		void	execute(std::vector<std::string>& arguments, Client* client);
 };
+
+class NickCommand : public Command
+{
+	private:
+
+	public:
+		NickCommand(Server* server);
+		~NickCommand();
+		void	execute(std::vector<std::string>& arguments, Client* client);
+};
+
+class UserCommand : public Command
+{
+	private:
+
+	public:
+		UserCommand(Server* server);
+		~UserCommand();
+		void	execute(std::vector<std::string>& arguments, Client* client);
+};
+
 
 #endif /* COMMAND_HPP */

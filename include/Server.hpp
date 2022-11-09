@@ -19,6 +19,7 @@ class Server;
 # include "Client.hpp"
 # include "Types.hpp"
 # include "Channel.hpp"
+# include "utils.hpp"
 
 class Client;
 class Command;
@@ -35,11 +36,11 @@ class Server {
 		t_addrmap		_addrmap;	//Lookup for struct sockaddr_in
 		t_connq			_connq;		//Queue of connections
 		t_dataq			_dataq;		//Queue of data
-		t_clients		_clients;
 		HandleCommand* 	_handleCommand;
+		t_clients		_clients;
 
 		void	__queue(int fd, t_str data);	//Adds data to the queue
-
+	
 	public:
 		Server(t_port port = 6667, t_str password = "");
 		~Server();
@@ -63,7 +64,7 @@ class Server {
 		std::string						getPassword() const;
 		uint32_t						getPort() const;
 		Client*							getClient(std::string& username) const;
-
+		t_clients						getClients() const;
 		class 	socketFailedError : public std::exception {
 			virtual const char*	what() const throw();
 		};

@@ -229,6 +229,11 @@ Client*		Server::getClient(std::string& username) const
 	return (nullptr);
 }
 
+t_clients	Server::getClients() const
+{
+	return (_clients);
+}
+
 // int		Server::getConnections(t_conn& conn) {
 // 	int	siz = _connq.size();
 // 	if (siz) {

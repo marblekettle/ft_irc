@@ -8,7 +8,8 @@ HandleCommand::HandleCommand(Server* server) : _server(server)
 	_commands["/KICK"] = new KickCommand(_server);
 	_commands["/QUIT"] = new QuitCommand(_server);
 	_commands["/MODE"] = new ModeCommand(_server);
-	_commands["/NICK"] = new ModeCommand(_server);
+	_commands["/NICK"] = new NickCommand(_server);
+	_commands["/USER"] = new UserCommand(_server);
 }
 
 HandleCommand::~HandleCommand()
@@ -37,7 +38,7 @@ void	HandleCommand::call(std::string &message, Client* client)
 	std::istringstream ssMessage(message);
 	while (std::getline(ssMessage, temp, ' '))
 	{
-		std::cout << "Arguments are: " << temp << std::endl;
+		// std::cout << "Arguments are: " << temp << std::endl;
 		arguments.push_back(temp);
 	}
 	temp = StringToUpper(arguments[1]);
@@ -45,6 +46,6 @@ void	HandleCommand::call(std::string &message, Client* client)
 	if (_commands.count(temp) > 0)
 	{
 		cmd = _commands.at(temp);
-		cmd->execute(arguments);
+		cmd->execute(arguments, client);
 	}
 }
