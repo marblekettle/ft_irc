@@ -4,19 +4,13 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Client::Client() : _fd(-1) {}
-
-Client::Client(int const fd) :
-	_fd(fd)
+Client::Client(int const fd, const std::string& host) :
+	_fd(fd),
+	_host(host),
+	_isAuthorized(false)
 {
 	_buffer.resize(INIT_BUFFER);
 	return ;
-}
-
-Client::Client( const Client & src ) :
-	_fd(src._fd)
-{
-	*this = src;
 }
 
 /*
@@ -32,16 +26,6 @@ Client::~Client()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Client &				Client::operator=( Client const & rhs )
-{
-	if ( this != &rhs )
-	{
-		_nickname = rhs.getNick();
-		_username = rhs.getUser();
-		_buffer = rhs.getBuffer();
-	}
-	return (*this);
-}
 
 // std::ostream &			operator<<( std::ostream & o, Client const & i )
 // {
@@ -54,9 +38,9 @@ Client &				Client::operator=( Client const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Client::sendMessage( Client *sender, std::string message ) {
+void	Client::sendMessage(std::string message) {
 
-	std::cout << "sendMessage (from: " << sender->getNick() << ") : " << message << std::endl;
+	std::cout << "sendMessage (from: " << this->getNick() << ") : " << message << std::endl;
 	// TODO implement sending
 	_commandQueue.pop();
 }
@@ -73,21 +57,28 @@ void	Client::addCommandToQueue( Command * command ) {
 	_commandQueue.push(command);
 }
 
+
+
 /*
 ** --------------------------------- MUTATORS ---------------------------------
 */
 
-void	Client::setNick(std::string const & nick)
+void	Client::setNick(const std::string& nick)
 {
 	this->_nickname = nick;
 }
 
-void	Client::setUser(std::string const & user)
+void	Client::setUser(const std::string& user)
 {
 	this->_username = user;
 }
 
-void	Client::setBuffer(std::string const & buf)
+void	Client::setRealName(const std::string& name)
+{
+	this->_realname = name;
+}
+
+void	Client::setBuffer(const std::string& buf)
 {
 	this->_buffer = buf;
 }
@@ -116,14 +107,36 @@ std::string	Client::getNick() const
 	return (this->_nickname);
 }
 
+std::string	Client::getHost() const
+{
+	return (this->_host);
+}
+
 std::string	Client::getUser() const
 {
 	return (this->_username);
 }
 
+std::string	Client::getRealName() const
+{
+	return (this->_realname);
+}
+
 std::string	Client::getBuffer() const
 {
 	return (this->_buffer);
+}
+
+std::string	Client::getPrefix()
+{
+	if (_isAuthorized)
+	{
+		std::stringstream	prefix;
+
+		prefix << getNick() << "!" << getUser() << "@" << getHost();
+		return (prefix.str());
+	}
+	return ("");
 }
 
 /* ************************************************************************** */

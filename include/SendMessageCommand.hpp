@@ -1,9 +1,6 @@
 #ifndef FT_IRC_MESSAGE_COMMAND_HPP
 #define FT_IRC_MESSAGE_COMMAND_HPP
 
-//# include <Command.hpp>
-//# include <Client.hpp>
-
 template<typename Receiver>
 class SendMessageCommand : public Command {
 

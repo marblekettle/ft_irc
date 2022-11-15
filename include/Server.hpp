@@ -10,31 +10,36 @@
 # include <cstring>			//memset()
 # include <exception>		//std::exception
 # include "Types.hpp"
-# include "Client.hpp"
-# include "Channel.hpp"
 # include <netdb.h>
 # include <vector>
 # include <map>
+# include <cerrno>
+
+class HandleCommand;
+class Channel;
+class Command;
 
 class Server {
 	private:
-		int									_socket;
-		t_port								_port;		//Port number
-		t_str								_passwd;	//Password
-		bool								_ready;		//Polling may NEVER occur unless this is true
-		t_fdv								_fd;		//Vector of pollfd structs for polling
-		t_addrmap							_addrmap;	//Lookup for struct sockaddr_in
-		t_connq								_connq;		//Queue of connections
-		t_dataq								_dataq;		//Queue of data
-		void								__queue(int fd, t_str data);	//Adds data to the queue
+		int				_socket;
+		t_port			_port;		//Port number
+		t_str			_passwd;	//Password
+		bool			_ready;		//Polling may NEVER occur unless this is true
+		t_fdv			_fd;		//Vector of pollfd structs for polling
+		t_addrmap		_addrmap;	//Lookup for struct sockaddr_in
+		t_connq			_connq;		//Queue of connections
+		t_dataq			_dataq;		//Queue of data
+		HandleCommand* 	_handleCommand;
+		t_clients		_clients;
+		void			__queue(int fd, t_str data);	//Adds data to the queue
 
 //	____Experimental____
 		bool		_sendready;
 		void		__togglepoll();
 
 //	____________________
-		std::map<int, Client*>				_clients;
 		std::map<std::string, Channel *>	_channels;
+	
 	public:
 		Server(t_port port = 6667, t_str password = "");
 		~Server();
@@ -60,7 +65,7 @@ class Server {
 		std::string						getPassword() const;
 		uint32_t						getPort() const;
 		Client*							getClient(std::string& username) const;
-
+		t_clients						getClients() const;
 		class 	socketFailedError : public std::exception {
 			virtual const char*	what() const throw();
 		};

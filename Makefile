@@ -10,16 +10,15 @@ SRC			=	Server.cpp \
 				Client.cpp \
 				Channel.cpp \
 				Command.cpp \
-				JoinCommand.cpp \
-				SendMessageCommand.cpp \
 				main.cpp \
+				HandleCommand.cpp \
+				utils.cpp
 
 HEADERS		=	Server.hpp \
 				Client.hpp \
 				Channel.hpp \
 				Command.hpp \
-				JoinCommand.hpp \
-				SendMessageCommand.hpp \
+				HandleCommand.hpp \
 
 OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
 

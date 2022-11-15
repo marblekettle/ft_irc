@@ -1,7 +1,7 @@
-#include <iostream>
-#include <sstream>
 #include "Server.hpp"
-#include "SendMessageCommand.hpp"
+#include "HandleCommand.hpp"
+#include "Client.hpp"
+#include "Channel.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -14,13 +14,17 @@ Server::Server(t_port port, t_str passwd):
 	_sendready(false)
 {
 	_socket = openSocket();
+	_handleCommand = new HandleCommand(this);
 }
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Server::~Server(){}
+Server::~Server()
+{
+	delete _handleCommand;
+}
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -45,13 +49,13 @@ bool	Server::connectClient()
 	//	pollfd.events = (POLLIN);		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
-	// char hostname[NI_MAXHOST];
-	// if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) !=
-	// 	0)
-	// 	throw std::runtime_error("Error");
-	Client* client = new Client(fd);
+	char hostname[NI_MAXHOST];
+	if (getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
+		throw std::runtime_error("Error");
+	Client* client = new Client(fd, hostname);
 	_clients.insert(std::make_pair(fd, client));
 	std::cout << "client #" << fd << " is connected" << std::endl;
+	std::cout << "Host: " << client->getHost() << std::endl;
 	return (true);
 }
 
@@ -157,14 +161,16 @@ std::string		Server::readMessage(int fd)
 
 void	Server::clientMessage(int fd)
 {
-	// Client *client = _clients.at(fd);
-	broadcast(fd, readMessage(fd));
+	Client *client = _clients.at(fd);
+	std::string message;
+	message = readMessage(fd);
+	_handleCommand->call(message, client);
+	// broadcast(fd, readMessage(fd));
 }
 
 
 void	Server::broadcast(int fd, std::string message)
 {
-	// std::stringstream ss;
 	std::ostringstream ss;
 
 	ss << "From client #" << fd << " : "<< message;
@@ -247,6 +253,11 @@ Client*		Server::getClient(std::string& username) const
 	return (nullptr);
 }
 
+t_clients	Server::getClients() const
+{
+	return (_clients);
+}
+
 // int		Server::getConnections(t_conn& conn) {
 // 	int	siz = _connq.size();
 // 	if (siz) {
@@ -264,13 +275,14 @@ const char*	Server::connectionError::what() const throw() {
 	return ("Connection error");
 }
 
+/*
 int	Server::test() {
 
-	_clients.insert(std::make_pair(3, new Client(3)));
+	_clients.insert(std::make_pair(3, new Client(3, "localhost")));
 	_clients[3]->setNick("Bob");
-	_clients.insert(std::make_pair(4, new Client(4)));
+	_clients.insert(std::make_pair(4, new Client(4,"localhost")));
 	_clients[4]->setNick("Eve");
-	_clients.insert(std::make_pair(5, new Client(5)));
+	_clients.insert(std::make_pair(5, new Client(5,"localhost")));
 	_clients[5]->setNick("Stef");
 
 	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[4], _clients[3], "testcommand"));
@@ -291,6 +303,7 @@ int	Server::test() {
 	}
 	return (0);
 }
+*/
 
 //	____Experimental____
 

@@ -1,13 +1,14 @@
 #ifndef FT_IRC_CLIENT_HPP
 # define FT_IRC_CLIENT_HPP
 
-# include <Command.hpp>
 # include <Types.hpp>
 # include <iostream>
 # include <string>
 # include <queue>
-
+# include <sstream>
+# include <sys/socket.h>
 # define INIT_BUFFER 100
+class Command;
 
 class Client
 {
@@ -16,7 +17,10 @@ class Client
 		const int 				_fd;
 		std::string				_nickname;
 		std::string				_username;
+		std::string				_realname;
 		std::string				_buffer;
+		const std::string		_host;
+		bool					_isAuthorized;
 		std::queue<Command *>	_commandQueue;
 
 //	____Experimental____
@@ -29,10 +33,8 @@ class Client
 
 	public:
 
-							Client(int const fd);
-							Client(Client const & src);
-		Client &			operator=( Client const & rhs );
-							~Client();
+		Client(int const fd, const std::string& host);
+		~Client();
 
 //	____Experimental____
 
@@ -45,15 +47,20 @@ class Client
 		int					getFd();
 		std::string			getNick() const;
 		std::string			getUser() const;
+		std::string			getHost() const;
+		std::string			getRealName() const;
 		std::string			getBuffer() const;
+		std::string			getPrefix();
 
-		void				setNick(std::string const & nick);
-		void				setUser(std::string const & user);
-		void				setBuffer(std::string const & user);
-		void				appendBuffer(std::string const & user);
+		void				setNick(const std::string& nick);
+		void				setUser(const std::string& user);
+		void				setRealName(const std::string& user);
+		void				setBuffer(const std::string& user);
+		void				appendBuffer(const std::string& user);
 		void				clearBuffer();
 
-		void				sendMessage(Client * sender, std::string message);
+
+		void				sendMessage(std::string message);
 		Command *			getNextCommand();
 		void				addCommandToQueue( Command * command );
 };

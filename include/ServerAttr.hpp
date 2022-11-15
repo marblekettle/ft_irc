@@ -6,7 +6,7 @@
 # include <algorithm>
 # include <map>
 # include <vector>
-# include "Client.hpp"
+# include "Types.hpp"
 
 class ServerAttr
 {
