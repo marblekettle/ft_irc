@@ -32,15 +32,18 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 	std::cout << "Call Private Msg command" << std::endl;
 	Client*		clientToRecieve;
 	std::string name;
-	name = arguments[2];
+	name = arguments[1];
+	std::cerr << name << std::endl;
 	clientToRecieve =  _server->getClient(name);
+	std::cerr << clientToRecieve << std::endl;
 	if (clientToRecieve)
 	{
 		std::stringstream ssMsg;
 		std::vector<std::string>::iterator it;
 		for (it = arguments.begin() + 2; it != arguments.end(); it++)
 			ssMsg << *it;
-		clientToRecieve->sendMessage(ssMsg.str());
+		ssMsg << std::endl;
+		clientToRecieve->queueResponse(ssMsg.str());
 	}
 	return ;
 }
@@ -88,7 +91,8 @@ NickCommand::~NickCommand() {}
 void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
 	std::cout << "Call Nick command" << std::endl;
-	std::string nick = StringToUpper(arguments[2]);
+	std::string nick = StringToUpper(arguments[1]);
+	std::cerr << nick << std::endl;
 	t_clients	clientslist = _server->getClients();
 	for (t_clients::iterator it = clientslist.begin(); it != clientslist.end(); it++)
 	{

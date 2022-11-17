@@ -1,11 +1,7 @@
 #ifndef FT_IRC_CHANNEL_HPP
 # define FT_IRC_CHANNEL_HPP
 
-# include <iostream>
-# include <string>
-# include <vector>
-
-class Client;
+# include "Types.hpp"
 
 class Channel
 {

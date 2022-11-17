@@ -240,13 +240,13 @@ uint32_t	Server::getPort() const
 	return (this->_port);
 }
 
-Client*		Server::getClient(std::string& username) const
+Client*		Server::getClient(std::string& nickname) const
 {
 	t_clients::const_iterator it;
 
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		if (it->second->getUser() == username)
+		if (it->second->getNick() == StringToUpper(nickname))
 			return (it->second);
 	}
 	

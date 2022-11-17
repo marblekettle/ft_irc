@@ -10,9 +10,8 @@
 # include <cstring>			//memset()
 # include <exception>		//std::exception
 # include "Types.hpp"
+# include "utils.hpp"
 # include <netdb.h>
-# include <vector>
-# include <map>
 # include <cerrno>
 
 class HandleCommand;

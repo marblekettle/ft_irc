@@ -1,10 +1,7 @@
 #ifndef FT_IRC_CLIENT_HPP
 # define FT_IRC_CLIENT_HPP
 
-# include <Types.hpp>
-# include <iostream>
-# include <string>
-# include <queue>
+# include "Types.hpp"
 # include <sstream>
 # include <sys/socket.h>
 # define INIT_BUFFER 100
