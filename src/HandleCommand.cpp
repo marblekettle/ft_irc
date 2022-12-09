@@ -33,19 +33,33 @@ void	HandleCommand::call(std::string &message, Client* client)
 {
 	(void)client;
 
-	std::vector<std::string> arguments;
 	std::string temp;
-	std::istringstream ssMessage(message);
-	while (std::getline(ssMessage, temp, ' '))
-	{
-		// std::cout << "Arguments are: " << temp << std::endl;
-		arguments.push_back(temp);
+	std::string cut = message.substr(0, message.find('\n'));
+	size_t				pos = 0;
+	std::vector<t_str>	v;
+	while (1) {
+		size_t	pos2;
+		if (cut[pos] == ':') {
+			pos++;
+			pos2 = cut.size();
+			while (pos2 > 1 && cut[pos2 - 1] == ' ')
+				pos2--;
+		} else
+			pos2 = cut.find(' ', pos);
+		t_str split = cut.substr(pos, pos2 - pos);
+		if (split.size() > 0) {
+			v.push_back(split);
+			std::cout << v.size() << ": [" << v.back() << "]" << std::endl;
+		}
+		if (pos2 >= cut.size())
+			break ;
+		pos = pos2 + 1;
 	}
-	temp = StringToUpper(arguments[1]);
+	temp = StringToUpper(v[0]);
 	Command* cmd;
 	if (_commands.count(temp) > 0)
 	{
 		cmd = _commands.at(temp);
-		cmd->execute(arguments, client);
+		cmd->execute(v, client);
 	}
 }

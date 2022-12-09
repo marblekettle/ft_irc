@@ -1,11 +1,10 @@
 #ifndef COMMAND_HPP
 # define COMMAND_HPP
 
-# include <queue>
-# include <iostream>
+# include "Types.hpp"
 # include <sstream>
-# include "Server.hpp"
-class Client;
+
+class Server;
 
 class	Command
 {
@@ -17,7 +16,6 @@ class	Command
 	public:
 		explicit		Command(Server *server) : _server(server) {};
 		virtual			~Command() {};
-
 		virtual void	execute(std::vector<std::string>& arguments, Client* client) = 0;
 		// void			addToQueue( std::queue<Command *> & queue );
 

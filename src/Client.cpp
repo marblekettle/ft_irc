@@ -40,9 +40,9 @@ Client::~Client()
 
 void	Client::sendMessage(std::string message ) {
 
-	std::stringstream ss;
-	ss << ":" << getPrefix() << " " << message << "\r\n";
-	send(_fd, ss.str().c_str(), ss.str().length(), 0);
+	std::cout << "sendMessage (from: " << this->getNick() << ") : " << message << std::endl;
+	// TODO implement sending
+	_commandQueue.pop();
 }
 
 Command *	Client::getNextCommand( ) {
@@ -63,22 +63,22 @@ void	Client::addCommandToQueue( Command * command ) {
 ** --------------------------------- MUTATORS ---------------------------------
 */
 
-void	Client::setNick(std::string& nick)
+void	Client::setNick(const std::string& nick)
 {
 	this->_nickname = nick;
 }
 
-void	Client::setUser(std::string& user)
+void	Client::setUser(const std::string& user)
 {
 	this->_username = user;
 }
 
-void	Client::setRealName(std::string& name)
+void	Client::setRealName(const std::string& name)
 {
 	this->_realname = name;
 }
 
-void	Client::setBuffer(std::string& buf)
+void	Client::setBuffer(const std::string& buf)
 {
 	this->_buffer = buf;
 }
@@ -88,7 +88,7 @@ void	Client::clearBuffer()
 	this->_buffer.clear();
 }
 
-void	Client::appendBuffer(std::string& buf)
+void	Client::appendBuffer(std::string const & buf)
 {
 	this->_buffer += buf;
 }
@@ -140,3 +140,21 @@ std::string	Client::getPrefix()
 }
 
 /* ************************************************************************** */
+
+//	____Experimental____
+
+void	Client::queueResponse(const t_str& message) {
+	_responseQueue.push(message);
+}
+
+int		Client::nResponses() {
+	return (_responseQueue.size());
+}
+
+t_str	Client::popResponse() {
+	t_str	response = _responseQueue.front();
+	_responseQueue.pop();
+	return (response);
+}
+
+//	____________________

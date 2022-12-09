@@ -1,9 +1,6 @@
 #ifndef FT_IRC_JOIN_COMMAND_HPP
 # define FT_IRC_JOIN_COMMAND_HPP
 
-# include <Command.hpp>
-# include <Client.hpp>
-
 template<class Receiver>
 class JoinCommand : public Command {
 

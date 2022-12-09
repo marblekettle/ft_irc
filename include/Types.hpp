@@ -1,13 +1,14 @@
 //	Types.hpp : A collection of typedefs of commonly used or wordy datatypes and their required includes
 
-#ifndef TYPES_HPP
-# define TYPES_HPP
+#ifndef FT_IRC_TYPES_HPP
+# define FT_IRC_TYPES_HPP
 # include <iostream>		//std::cout, std::string
 # include <netinet/in.h>	//inet_ntoa
 # include <vector>
 # include <queue>			
 # include <map>
-# include "Server.hpp"
+
+class	Client;
 
 typedef	std::string				t_str;		//String
 typedef unsigned int			t_ip;		//IPv4 address stored as int (using htonl())

@@ -1,10 +1,11 @@
-#ifndef CHANNEL_HPP
-# define CHANNEL_HPP
+#ifndef FT_IRC_CHANNEL_HPP
+# define FT_IRC_CHANNEL_HPP
 
 # include <iostream>
 # include <string>
 # include <vector>
-# include "Client.hpp"
+
+class Client;
 
 class Channel
 {

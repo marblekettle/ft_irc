@@ -1,13 +1,17 @@
 #include "Server.hpp"
+#include "HandleCommand.hpp"
+#include "Client.hpp"
+#include "Channel.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server(t_port port, t_str password):
+Server::Server(t_port port, t_str passwd):
 	_port(port),
-	_password(password),
-	_ready(false) 
+	_passwd(passwd),
+	_ready(false),
+	_sendready(false)
 {
 	_socket = openSocket();
 	_handleCommand = new HandleCommand(this);
@@ -42,7 +46,7 @@ bool	Server::connectClient()
 	fcntl(fd, F_SETFL, O_NONBLOCK);	//Set FD to non-blocking
 	t_fd	pollfd = {fd, POLLIN, 0};
 	// pollfd.events = (POLLIN | POLLOUT);		//Allow for sending AND receiving data
-	pollfd.events = (POLLIN);		//Allow for sending AND receiving data
+	//	pollfd.events = (POLLIN);		//Allow for sending AND receiving data
 	_fd.push_back(pollfd);
 	_addrmap[pollfd.fd] = *(reinterpret_cast<t_addrin*>(&addr));
 	char hostname[NI_MAXHOST];
@@ -53,6 +57,12 @@ bool	Server::connectClient()
 	std::cout << "client #" << fd << " is connected" << std::endl;
 	std::cout << "Host: " << client->getHost() << std::endl;
 	return (true);
+}
+
+void	Server::addChannel(Channel * channel) {
+
+	_channels.insert(std::make_pair(channel->getName(), channel));
+	std::cout << "Channel: '" << channel->getName() << "' added" << std::endl;
 }
 
 void	Server::__queue(int fd, t_str data) {
@@ -94,13 +104,14 @@ void		Server::run()
 	_fd.push_back(server_fd);
 	while (1) 
 	{
+		__togglepoll();
 		t_fdv::iterator it_end = _fd.end();
-		if (poll(_fd.begin().base(), _fd.size(), -1) < 0)
+		if (poll(_fd.begin().base(), _fd.size(), 10) < 0)
 			throw std::runtime_error("Error");
 		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
 			if (it->revents == 0)
 				continue;
-			if ((it->revents & POLLHUP) == POLLHUP) {
+			if (it->revents & (POLLHUP | POLLNVAL | POLLERR)) {
 				std::cout << "FD " << it->fd << " disconnected!" << std::endl;
 				disconnectClient(it->fd);
 				break ;
@@ -108,9 +119,20 @@ void		Server::run()
 			if (it->revents & POLLIN) {
 				if (it->fd == _socket) {
 					connectClient();
-					break ;
+					break ;	//	Could be continue instead?
 				}
 				clientMessage(it->fd); 
+			}
+			if (it->revents & POLLOUT) {
+				Client*	cl = _clients[it->fd];
+				if (cl && cl->nResponses() > 0) {
+					t_str tosend = cl->popResponse();
+					int sent = send(it->fd, tosend.c_str(), tosend.size(), 0);
+					if (static_cast<unsigned int>(sent) != tosend.size())
+						std::cerr << "Error: Whole message not sent" << std::endl;
+				} else {
+					std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
+				}
 			}
 		}
 	}	
@@ -146,6 +168,7 @@ void	Server::clientMessage(int fd)
 	// broadcast(fd, readMessage(fd));
 }
 
+
 void	Server::broadcast(int fd, std::string message)
 {
 	std::ostringstream ss;
@@ -158,7 +181,8 @@ void	Server::broadcast(int fd, std::string message)
 	{
 		if (it->first == fd || it->first == _socket)
 			continue;
-		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
+//		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
+		it->second->queueResponse(ss.str());
 	}
 }
 
@@ -208,7 +232,7 @@ t_str	Server::getIP(int fd) {
 
 std::string		Server::getPassword() const
 {
-	return (this->_password);
+	return (this->_passwd);
 }
 
 uint32_t	Server::getPort() const
@@ -250,3 +274,54 @@ const char*	Server::socketFailedError::what() const throw() {
 const char*	Server::connectionError::what() const throw() {
 	return ("Connection error");
 }
+
+/*
+int	Server::test() {
+
+	_clients.insert(std::make_pair(3, new Client(3, "localhost")));
+	_clients[3]->setNick("Bob");
+	_clients.insert(std::make_pair(4, new Client(4,"localhost")));
+	_clients[4]->setNick("Eve");
+	_clients.insert(std::make_pair(5, new Client(5,"localhost")));
+	_clients[5]->setNick("Stef");
+
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[4], _clients[3], "testcommand"));
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[5], _clients[3], "testcommand2"));
+	_clients[3]->addCommandToQueue(new SendMessageCommand<Client *>(_clients[3], _clients[3], "testcommand3"));
+
+	_clients[3]->getNextCommand()->execute();
+	_clients[3]->getNextCommand()->execute();
+	_clients[3]->getNextCommand()->execute();
+
+	addChannel(new Channel("new channel", "pass", _clients[3]));
+//	_channels["new channel"]->join(_clients[4]);
+	_channels["new channel"]->join(_clients[5]);
+	std::vector<Client *> & list =_channels["new channel"]->getClientList();
+	for (std::vector<Client *>::iterator it = list.begin(); it < list.end(); it++)
+	{
+		std::cout << (*it)->getNick() << std::endl;
+	}
+	return (0);
+}
+*/
+
+//	____Experimental____
+
+void	Server::__togglepoll() {
+	for (unsigned int i = 1; i < _fd.size(); i++) {
+		if (_sendready) {
+			_fd[i].events = POLLIN;
+		} else {
+			Client*	cl = _clients[_fd[i].fd];
+			if (cl->nResponses() > 0) {
+				_fd[i].events = POLLOUT;
+			} else {
+				_fd[i].events = POLLIN;
+			}
+		}
+	}
+//	std::cerr << _sendready << std::endl;
+	_sendready = (~_sendready) & 1;
+}
+
+//	____________________

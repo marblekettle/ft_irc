@@ -4,7 +4,7 @@
 #include <SendMessageCommand.hpp>
 
 template<typename Receiver>
-SendMessageCommand<Receiver>::SendMessageCommand(Client * sender, Receiver * receiver, std::string message )
+SendMessageCommand<Receiver>::SendMessageCommand(Client * sender, Receiver receiver, std::string message )
 : _sender(sender), _receiver(receiver), _message(message) {
 
 }
@@ -12,7 +12,7 @@ SendMessageCommand<Receiver>::SendMessageCommand(Client * sender, Receiver * rec
 template<>
 void	SendMessageCommand<Client *>::execute( ) {
 
-	std::cout << "SendMessageCommand(Client): " << _message << std::endl;
+//	std::cout << "SendMessageCommand(Client): " << _message << std::endl;
 	reinterpret_cast<Client *>(_receiver)->sendMessage(_sender, _message);
 }
 
@@ -23,6 +23,6 @@ void	SendMessageCommand<Channel *>::execute( ) {
 	std::vector<Client *> & clientList = reinterpret_cast<Channel *>(_receiver)->getClientList();
 	for (std::vector<Client *>::iterator it = clientList.begin(); it <= clientList.end(); it++)
 	{
-		(*it)->addCommandToQueue(new SendMessageCommand<Client *>(_sender, &(*it), _message));
+		(*it)->addCommandToQueue(new SendMessageCommand<Client *>(_sender, *it, _message));
 	}
 }
