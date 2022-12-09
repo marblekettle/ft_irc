@@ -40,6 +40,7 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 		std::vector<std::string>::iterator it;
 		for (it = arguments.begin() + 2; it != arguments.end(); it++)
 			ssMsg << *it;
+		// ssMsg = client->getPrefix() + ssMsg;
 		clientToRecieve->sendMessage(ssMsg.str());
 	}
 	return ;

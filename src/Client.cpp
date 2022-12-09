@@ -38,7 +38,8 @@ Client::~Client()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Client::sendMessage(std::string message) {
+
+void	Client::sendMessage(std::string message ) {
 
 	std::cout << "sendMessage (from: " << this->getNick() << ") : " << message << std::endl;
 	// TODO implement sending
