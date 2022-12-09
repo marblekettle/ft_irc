@@ -3,7 +3,7 @@
 
 /* Messages on succes */
 
-#define RPL_WELCOME(source, prefix, nick) 	source + "001 " + nick + " :Welcome to the Internet Relay Network " + prefix
+#define RPL_WELCOME(source) 	source + "001 " + source + " :Welcome to the Internet Relay Network"
 /* Error messages */
 
 #define ERR_NICKNAMEINUSE(source,nick)		source + " 433 * " + nick + " :Nickname is already in use."

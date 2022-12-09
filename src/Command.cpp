@@ -90,17 +90,17 @@ NickCommand::~NickCommand() {}
 void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
 	std::cout << "Call Nick command" << std::endl;
-	if (arguments.empty[0] || arguments.empty[1])
+	if (arguments[0].empty() || arguments[1].empty())
 	{
 		client->reply(ERR_NONICKNAMEGIVEN(client->getHost()));
 		return ;
 	}
 	
 	if (_server->getClient(arguments[1])) {
-		client->reply(ERR_NICKNAMEINUSE(client->getNickname()));
+		client->reply(ERR_NICKNAMEINUSE(client->getHost(), client->getNick()));
 		return ;
 	}
-	client->setNickname(arguments[1]);
+	client->setNick(arguments[1]);
 	// client->welcome();
 }
 

@@ -15,5 +15,6 @@ void	logToServer(std::string &message)
 
 	ltime = time(NULL);
 	localtime_r(&ltime, &result);
-	std::cout << asctime_r(&result, stime) << std::endl;
+	std::cout << asctime_r(&result, stime) << ":" << message << std::endl;
+	// not working as hoped needs fixing
 }

@@ -27,7 +27,7 @@ Client::~Client()
 */
 
 
-// std::ostream &			operator<<( std::ostream & o, Client const & i )
+// std::ostream &			operator+( std::ostream & o, Client const & i )
 // {
 // 	//o << "Value = " << i.getValue();
 // 	return o;
@@ -39,7 +39,7 @@ Client::~Client()
 */
 
 
-void	Client::reply(std::string &message) {
+void	Client::reply(std::string message) {
 	
 	std::string buffer;
 	buffer = getPrefix() + message + "\r\n";
@@ -71,7 +71,7 @@ void	Client::welcome()
 {
 	if (_username.empty() || _realname.empty() || _nickname.empty())
 		return ;
-	reply(RPL_WELCOME(getHost().c_str(), getPrefix().c_str(), getNick().c_str()));
+	reply(RPL_WELCOME(_nickname));
 	// Log to server
 }
 
@@ -145,9 +145,7 @@ std::string	Client::getBuffer() const
 
 std::string	Client::getPrefix()
 {
-	std::stringstream	prefix;
-	prefix  = _nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host);
-	return (prefix.str());
+	return (_nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host));
 }
 
 /* ************************************************************************** */
