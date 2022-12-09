@@ -31,8 +31,6 @@ HandleCommand::~HandleCommand()
 
 void	HandleCommand::call(std::string &message, Client* client)
 {
-	(void)client;
-
 	std::string temp;
 	std::string cut = message.substr(0, message.find('\n'));
 	size_t				pos = 0;
@@ -47,19 +45,26 @@ void	HandleCommand::call(std::string &message, Client* client)
 		} else
 			pos2 = cut.find(' ', pos);
 		t_str split = cut.substr(pos, pos2 - pos);
-		if (split.size() > 0) {
+		if (split.size() > 0)
 			v.push_back(split);
-			std::cout << v.size() << ": [" << v.back() << "]" << std::endl;
-		}
 		if (pos2 >= cut.size())
 			break ;
 		pos = pos2 + 1;
 	}
+	_args = v;
 	temp = StringToUpper(v[0]);
 	Command* cmd;
-	if (_commands.count(temp) > 0)
-	{
+	if (_commands.count(temp) > 0) {
 		cmd = _commands.at(temp);
-		cmd->execute(v, client);
+		if (client)
+			cmd->execute(v, client);
 	}
+}
+
+size_t	HandleCommand::getNArgs() const {
+	return (_args.size());
+}
+
+t_str	HandleCommand::getArg(size_t n) const {
+	return (_args.at(n));
 }
