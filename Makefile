@@ -19,6 +19,7 @@ HEADERS		=	Server.hpp \
 				Channel.hpp \
 				Command.hpp \
 				HandleCommand.hpp \
+				responses.hpp	\
 
 OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
 

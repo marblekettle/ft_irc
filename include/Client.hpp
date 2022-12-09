@@ -1,6 +1,7 @@
 #ifndef FT_IRC_CLIENT_HPP
 # define FT_IRC_CLIENT_HPP
 
+# include "responses.hpp"
 # include <Types.hpp>
 # include <iostream>
 # include <string>

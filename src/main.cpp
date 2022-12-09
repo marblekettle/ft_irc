@@ -1,6 +1,8 @@
 #include "Server.hpp"
 
 int	main(int ac, char** av) {
+	std::string temp = "hello";
+	logToServer(temp);
 	if (ac == 3) 
 	{
 		t_str	portstr(av[1]);

@@ -71,7 +71,7 @@ void	Client::welcome()
 {
 	if (_username.empty() || _realname.empty() || _nickname.empty())
 		return ;
-	reply(RPL_WELCOME(getHost(), getPrefix(), getNick()));
+	reply(RPL_WELCOME(getHost().c_str(), getPrefix().c_str(), getNick().c_str()));
 	// Log to server
 }
 
@@ -146,7 +146,7 @@ std::string	Client::getBuffer() const
 std::string	Client::getPrefix()
 {
 	std::stringstream	prefix;
-	prefix  = _nickname + (_username.empty() ? "" : "!" + _username) + (_hostname.empty() ? "" : "@" + _hostname);
+	prefix  = _nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host);
 	return (prefix.str());
 }
 
