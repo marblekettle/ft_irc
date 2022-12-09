@@ -59,7 +59,8 @@ class Client
 		void				appendBuffer(const std::string& user);
 		void				clearBuffer();
 
-
+		void				welcome();
+		void				reply(std::string &message);
 		void				sendMessage(std::string message);
 		Command *			getNextCommand();
 		void				addCommandToQueue( Command * command );

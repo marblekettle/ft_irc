@@ -3,12 +3,12 @@
 
 /* Messages on succes */
 
-#define RPL_WELCOME(server, prefix, nick) 	server + "001 " + nick + " :Welcome to the Internet Relay Network " + prefix
+#define RPL_WELCOME(source, prefix, nick) 	source + "001 " + nick + " :Welcome to the Internet Relay Network " + prefix
 /* Error messages */
 
-#define ERR_NICKNAMEINUSE(server,nick)		server + " 433 * " + nick + " :Nickname is already in use."
-#define ERR_ALREADYREGISTRED(server)		"462 " + server + " :You may not reregister"
-#define ERR_PASSWDMISMATCH(server) 			"464 " + server + " :irc.example.com 464 chris :Password Incorrect"
-#define	ERR_NEEDMOREPARAMS(server, command) "461 " + server + " " + command + " :Not enough parameters"
-
+#define ERR_NICKNAMEINUSE(source,nick)		source + " 433 * " + nick + " :Nickname is already in use."
+#define ERR_ALREADYREGISTRED(source)		"462 " + source + " :You may not reregister"
+#define ERR_PASSWDMISMATCH(source) 			"464 " + source + " :irc.example.com 464 chris :Password Incorrect"
+#define	ERR_NEEDMOREPARAMS(source, command) "461 " + source + " " + command + " :Not enough parameters"
+#define ERR_NONICKNAMEGIVEN(source)			"431 " + source + " :Nickname not given"
 #endif /* RESPONSES_HPP */

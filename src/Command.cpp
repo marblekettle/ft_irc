@@ -90,20 +90,18 @@ NickCommand::~NickCommand() {}
 void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
 	std::cout << "Call Nick command" << std::endl;
-	std::string nick = StringToUpper(arguments[0]);
-	t_clients	clientslist = _server->getClients();
-	for (t_clients::iterator it = clientslist.begin(); it != clientslist.end(); it++)
+	if (arguments.empty[0] || arguments.empty[1])
 	{
-		if (it->second == client)
-			continue;
-		if (it->second->getNick() == nick)
-		{
-			client->sendMessage(ERR_NICKNAMEINUSE("", ""));
-			return ;
-		}
+		client->reply(ERR_NONICKNAMEGIVEN(client->getHost()));
+		return ;
 	}
-	client->setNick(nick);
-	std::cout << "NICK SET" << std::endl;
+	
+	if (_server->getClient(arguments[1])) {
+		client->reply(ERR_NICKNAMEINUSE(client->getNickname()));
+		return ;
+	}
+	client->setNickname(arguments[1]);
+	// client->welcome();
 }
 
 UserCommand::UserCommand(Server* server) : Command(server) {}
