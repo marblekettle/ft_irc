@@ -1,7 +1,6 @@
 #ifndef FT_IRC_SIMPLE_COMMAND_HPP
 # define FT_IRC_SIMPLE_COMMAND_HPP
 
-# include <Command.hpp>
 # include <iostream>
 
 template<class Receiver>

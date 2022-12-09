@@ -1,7 +1,7 @@
 // Server.hpp : An object to manage connections and datastreams, for outputting data and linking clients to IP addresses and file descriptors
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef FT_IRC_SERVER_HPP
+# define FT_IRC_SERVER_HPP
 # include <sys/socket.h>	//socket()
 # include <arpa/inet.h>		//htons(), htonl()
 # include <poll.h>			//poll(), struct pollfd
@@ -9,28 +9,21 @@
 # include <unistd.h>		//close()
 # include <cstring>			//memset()
 # include <exception>		//std::exception
+# include "Types.hpp"
 # include <netdb.h>
 # include <vector>
 # include <map>
 # include <cerrno>
-class Server;
-# include "Command.hpp"
-# include "HandleCommand.hpp"
-# include "Client.hpp"
-# include "Types.hpp"
-# include "Channel.hpp"
-# include "utils.hpp"
 
-class Client;
-class Command;
 class HandleCommand;
 class Channel;
+class Command;
 
 class Server {
 	private:
 		int				_socket;
 		t_port			_port;		//Port number
-		t_str			_password;	//Password
+		t_str			_passwd;	//Password
 		bool			_ready;		//Polling may NEVER occur unless this is true
 		t_fdv			_fd;		//Vector of pollfd structs for polling
 		t_addrmap		_addrmap;	//Lookup for struct sockaddr_in
@@ -38,8 +31,14 @@ class Server {
 		t_dataq			_dataq;		//Queue of data
 		HandleCommand* 	_handleCommand;
 		t_clients		_clients;
+		void			__queue(int fd, t_str data);	//Adds data to the queue
 
-		void	__queue(int fd, t_str data);	//Adds data to the queue
+//	____Experimental____
+		bool		_sendready;
+		void		__togglepoll();
+
+//	____________________
+		std::map<std::string, Channel *>	_channels;
 	
 	public:
 		Server(t_port port = 6667, t_str password = "");
@@ -48,7 +47,9 @@ class Server {
 												//	Return: Socket successfully created or not
 		void	run();							//Check for all file descriptors if data is available or connection dropped
 												//	Return: Number of connections that returned data (i.e. return value of poll())
+		int	test();
 		bool	connectClient();				//Called when a connection is opened
+		void	addChannel(Channel * channel);
 		void	disconnectClient(int fd);		//Remove a specific file descriptor (e.g. when KILL is called)
 		int		getConnections(t_conn& conn);	//Get connection status from queue of new connections (placed inside reference)
 												//	Return: Queued connections before calling

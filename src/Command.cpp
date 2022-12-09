@@ -1,4 +1,7 @@
 #include "Command.hpp"
+#include "Server.hpp"
+#include "Client.hpp"
+#include "utils.hpp"
 
 JoinCommand::JoinCommand(Server* server) : Command(server)
 {

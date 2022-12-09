@@ -1,12 +1,11 @@
 #ifndef HANDLECOMMAND_HPP
 #define HANDLECOMMAND_HPP
 
-# include <iostream>
-# include <map>
-# include <vector>
-# include "Server.hpp"
-class Client;
-class Command;
+# include "Command.hpp"
+# include "Types.hpp"
+
+class Server;
+
 class HandleCommand
 {
 	private:
