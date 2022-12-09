@@ -4,11 +4,11 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Channel::Channel(const std::string &name, const std::string &password, Client *admin) :
+Channel::Channel(const std::string &name, Client *admin) :
 	_name(name),
-	_admin(admin),
-	_password(password)
+	_password("")
 {
+	this->_admins.push_back(admin);
 	this->_clientList.push_back(admin);
 }
 
@@ -19,6 +19,7 @@ Channel::Channel(const std::string &name, const std::string &password, Client *a
 Channel::~Channel()
 {
 	this->_clientList.clear();
+	this->_admins.clear();
 }
 
 
@@ -71,8 +72,8 @@ void	Channel::join(Client * new_client)
 	// TODO implementation (iterate to client->list ->add commands(join channel update) to all clients queues
 }
 
-std::vector<Client *> &	Channel::getClientList( ) {
-
+std::vector<Client *> &	Channel::getClientList( )
+{
 	return _clientList;
 }
 
@@ -80,9 +81,11 @@ std::vector<Client *> &	Channel::getClientList( ) {
 ** --------------------------------- MUTATORS ---------------------------------
 */
 
-void		Channel::setPassword(std::string &password)
+void		Channel::setPassword(std::string &password, Client* client)
 {
-	this->_password = password;
+	if (std::find(_admins.begin(), _admins.end(), client) != _admins.end())
+		this->_password = password;
+	/* return error client is not admin */
 }
 
 /*
@@ -91,17 +94,14 @@ void		Channel::setPassword(std::string &password)
 
 std::string		Channel::getPassword() const
 {
-	return (this->_password);
+	if (_password.size() > 0)
+		return (this->_password);
+	return ("");
 }
 
 std::string		Channel::getName() const
 {
 	return (this->_name);
-}
-
-Client*		Channel::getAdmin() const
-{
-	return (this->_admin);
 }
 
 /* ************************************************************************** */

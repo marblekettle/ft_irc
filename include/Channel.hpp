@@ -8,28 +8,26 @@
 
 class Channel
 {
-
 	private:
 
 		const std::string			_name;
-		Client *					_admin;
+		std::vector<Client*>		_admins;
 		std::vector<Client*>		_clientList;
 		std::string					_password;
 
 	public:
 
-		Channel(const std::string &name, const std::string &password, Client *admin);
+		Channel(const std::string &name, Client *admin);
 		~Channel();
 
 		std::string				getPassword() const;
 		std::string				getName() const;
-		Client*					getAdmin() const;
 		void					removeClient(Client *client);
 
 		void					join(Client *new_client);
 		std::vector<Client *> &	getClientList();
 
-		void			setPassword(std::string &password);
+		void					setPassword(std::string &password, Client* client);
 
 };
 

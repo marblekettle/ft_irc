@@ -38,11 +38,6 @@ Client::~Client()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void	Client::reply(std::string message)
-{
-	
-}
-
 void	Client::sendMessage(std::string message ) {
 
 	std::stringstream ss;
