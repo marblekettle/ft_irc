@@ -2,6 +2,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include "utils.hpp"
+#include "responses.hpp"
 
 JoinCommand::JoinCommand(Server* server) : Command(server)
 {
@@ -89,20 +90,18 @@ NickCommand::~NickCommand() {}
 void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
 	std::cout << "Call Nick command" << std::endl;
-	std::string nick = StringToUpper(arguments[2]);
-	t_clients	clientslist = _server->getClients();
-	for (t_clients::iterator it = clientslist.begin(); it != clientslist.end(); it++)
+	if (arguments[0].empty() || arguments[1].empty())
 	{
-		if (it->second == client)
-			continue;
-		if (it->second->getNick() == nick)
-		{
-			client->sendMessage("USERNAME already exist on server");
-			return ;
-		}
+		client->reply(ERR_NONICKNAMEGIVEN(client->getHost()));
+		return ;
 	}
-	client->setNick(nick);
-	std::cout << "NICK SET" << std::endl;
+	
+	if (_server->getClient(arguments[1])) {
+		client->reply(ERR_NICKNAMEINUSE(client->getHost(), client->getNick()));
+		return ;
+	}
+	client->setNick(arguments[1]);
+	// client->welcome();
 }
 
 UserCommand::UserCommand(Server* server) : Command(server) {}

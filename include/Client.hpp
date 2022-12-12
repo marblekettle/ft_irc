@@ -1,6 +1,7 @@
 #ifndef FT_IRC_CLIENT_HPP
 # define FT_IRC_CLIENT_HPP
 
+# include "responses.hpp"
 # include <Types.hpp>
 # include <iostream>
 # include <string>
@@ -59,7 +60,8 @@ class Client
 		void				appendBuffer(const std::string& user);
 		void				clearBuffer();
 
-
+		void				welcome();
+		void				reply(std::string message);
 		void				sendMessage(std::string message);
 		Command *			getNextCommand();
 		void				addCommandToQueue( Command * command );

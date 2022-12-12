@@ -22,7 +22,7 @@ class	Command
 
 };
 
-class JoinCommand : virtual public Command
+class JoinCommand : public Command
 {
 	private:
 

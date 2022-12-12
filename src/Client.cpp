@@ -27,7 +27,7 @@ Client::~Client()
 */
 
 
-// std::ostream &			operator<<( std::ostream & o, Client const & i )
+// std::ostream &			operator+( std::ostream & o, Client const & i )
 // {
 // 	//o << "Value = " << i.getValue();
 // 	return o;
@@ -38,6 +38,15 @@ Client::~Client()
 ** --------------------------------- METHODS ----------------------------------
 */
 
+
+void	Client::reply(std::string message) {
+	
+	std::string buffer;
+	buffer = getPrefix() + message + "\r\n";
+	std::cout << buffer; // Remove
+	if (send(_fd, buffer.c_str(), buffer.size(), 0) < 0)
+		throw std::runtime_error("Error sending message");
+}
 
 void	Client::sendMessage(std::string message ) {
 
@@ -58,7 +67,13 @@ void	Client::addCommandToQueue( Command * command ) {
 	_commandQueue.push(command);
 }
 
-
+void	Client::welcome()
+{
+	if (_username.empty() || _realname.empty() || _nickname.empty())
+		return ;
+	reply(RPL_WELCOME(_nickname));
+	// Log to server
+}
 
 /*
 ** --------------------------------- MUTATORS ---------------------------------
@@ -130,14 +145,7 @@ std::string	Client::getBuffer() const
 
 std::string	Client::getPrefix()
 {
-	if (_isAuthorized)
-	{
-		std::stringstream	prefix;
-
-		prefix << getNick() << "!" << getUser() << "@" << getHost();
-		return (prefix.str());
-	}
-	return ("");
+	return (_nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host));
 }
 
 /* ************************************************************************** */
