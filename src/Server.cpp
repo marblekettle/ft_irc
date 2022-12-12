@@ -88,8 +88,8 @@ int		Server::openSocket()
 	std::memset(&serv_addr, 0, sizeof(t_addrin));
 	serv_addr.sin_family = AF_INET;					//Internet protocol
 	serv_addr.sin_port = htons(_port);
-	serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
-	// serv_addr.sin_addr.s_addr = INADDR_ANY;
+	//serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	if (bind(socket_fd, reinterpret_cast<t_addr*>(&serv_addr), sizeof(t_addr)))
 		throw std::runtime_error("Error");
 	
@@ -305,23 +305,9 @@ int	Server::test() {
 }
 */
 
-//	____Experimental____
-
 void	Server::__togglepoll() {
 	for (unsigned int i = 1; i < _fd.size(); i++) {
-		if (_sendready) {
-			_fd[i].events = POLLIN;
-		} else {
-			Client*	cl = _clients[_fd[i].fd];
-			if (cl->nResponses() > 0) {
-				_fd[i].events = POLLOUT;
-			} else {
-				_fd[i].events = POLLIN;
-			}
-		}
+		_fd[i].events = _sendready ? POLLOUT : POLLIN;
 	}
-//	std::cerr << _sendready << std::endl;
 	_sendready = (~_sendready) & 1;
 }
-
-//	____________________

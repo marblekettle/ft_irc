@@ -31,13 +31,9 @@ class Server {
 		t_dataq			_dataq;		//Queue of data
 		HandleCommand* 	_handleCommand;
 		t_clients		_clients;
+		bool			_sendready;
 		void			__queue(int fd, t_str data);	//Adds data to the queue
-
-//	____Experimental____
-		bool		_sendready;
-		void		__togglepoll();
-
-//	____________________
+		void			__togglepoll();
 		std::map<std::string, Channel *>	_channels;
 	
 	public:

@@ -2,3 +2,6 @@
 1  2  3  
 COMM foo bar
 USER foo bar localhost :Foo B. Ar
+FOO:BAR
+ABCDE:ABCDE
+ABCDE :ABCDE
