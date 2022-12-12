@@ -79,6 +79,12 @@ void	Client::welcome()
 ** --------------------------------- MUTATORS ---------------------------------
 */
 
+
+void	Client::setState(int new_state)
+{
+	this->_state = new_state;
+}
+
 void	Client::setNick(const std::string& nick)
 {
 	this->_nickname = nick;

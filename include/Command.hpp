@@ -92,5 +92,15 @@ class UserCommand : public Command
 		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
+class PassCommand : public Command
+{
+	private:
+
+	public:
+		PassCommand(Server* server);
+		~PassCommand();
+		void	execute(std::vector<std::string>& arguments, Client* client);
+};
+
 
 #endif /* COMMAND_HPP */

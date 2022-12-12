@@ -32,8 +32,8 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 	(void)client;
 	std::cout << "Call Private Msg command" << std::endl;
 	// Client*		clientToRecieve;
-	// std::string name;
-	// name = arguments[2];
+	std::string name;
+	name = arguments[2];
 	// clientToRecieve =  _server->getClient(name);
 	// if (clientToRecieve)
 	// {
@@ -115,6 +115,7 @@ void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 
 	client->reply(reply_msg);
 	logToServer(reply_msg);
+	client->setState(REGISTERED);
 	client->welcome();
 }
 
@@ -136,5 +137,27 @@ void	UserCommand::execute(std::vector<std::string>& arguments, Client* client)
 	for (it = arguments.begin() + 5; it != arguments.end(); ++it)
 		ss << *it;
 	client->setRealName(ss.str());
+	client->setState(ACCESS);
 	client->welcome();
+}
+
+PassCommand::PassCommand(Server* server) : Command(server) {}
+
+PassCommand::~PassCommand() {}
+
+void	PassCommand::execute(std::vector<std::string>& arguments, Client* client)
+{
+	if (client->getState() > LOGIN)
+	{
+		client->reply(ERR_ALREADYREGISTRED(client->getHost()));
+		return ;
+	}
+	if (arguments[1].empty())
+	{
+		client->reply(ERR_NEEDMOREPARAMS(client->getHost(), "PASS"));
+		return ;
+	}
+	if (arguments[1] != _server->getPassword())
+		return ; // get disconected from server, no notification
+	client->setState(AUTHENTICATED);
 }

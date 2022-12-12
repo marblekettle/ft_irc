@@ -69,6 +69,7 @@ class Client
 		std::string			getBuffer() const;
 		std::string			getPrefix();
 
+		void				setState(int	new_state);
 		void				setNick(const std::string& nick);
 		void				setUser(const std::string& user);
 		void				setRealName(const std::string& user);
@@ -80,7 +81,7 @@ class Client
 		void				reply(std::string message);
 		void				sendMessage(std::string message);
 		Command *			getNextCommand();
-		void				addCommandToQueue( Command * command );
+		void				addCommandToQueue(Command * command);
 };
 
 std::ostream &			operator<<( std::ostream& o, Client const& i );
