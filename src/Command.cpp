@@ -31,20 +31,20 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 {
 	(void)client;
 	std::cout << "Call Private Msg command" << std::endl;
-	Client*		clientToRecieve;
-	std::string name;
-	name = arguments[2];
-	clientToRecieve =  _server->getClient(name);
-	if (clientToRecieve)
-	{
-		std::stringstream ssMsg;
-		std::vector<std::string>::iterator it;
-		for (it = arguments.begin() + 2; it != arguments.end(); it++)
-			ssMsg << *it;
-		// ssMsg = client->getPrefix() + ssMsg;
-		clientToRecieve->sendMessage(ssMsg.str());
-	}
-	return ;
+	// Client*		clientToRecieve;
+	// std::string name;
+	// name = arguments[2];
+	// clientToRecieve =  _server->getClient(name);
+	// if (clientToRecieve)
+	// {
+	// 	std::stringstream ssMsg;
+	// 	std::vector<std::string>::iterator it;
+	// 	for (it = arguments.begin() + 2; it != arguments.end(); it++)
+	// 		ssMsg << *it;
+	// 	// ssMsg = client->getPrefix() + ssMsg;
+	// 	clientToRecieve->sendMessage(ssMsg.str());
+	// }
+	// return ;
 }
 
 KickCommand::KickCommand(Server* server) : Command(server) {}
@@ -89,6 +89,13 @@ NickCommand::~NickCommand() {}
 
 void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
+	std::string nickname;
+
+	if (client->getState() < AUTHENTICATED)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
 	std::cout << "Call Nick command" << std::endl;
 	if (arguments[0].empty() || arguments[1].empty())
 	{
@@ -101,7 +108,14 @@ void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 		return ;
 	}
 	client->setNick(arguments[1]);
-	// client->welcome();
+
+	std::string reply_msg;
+	reply_msg.append(" : NICK :");
+	reply_msg.append(arguments[1]);
+
+	client->reply(reply_msg);
+	logToServer(reply_msg);
+	client->welcome();
 }
 
 UserCommand::UserCommand(Server* server) : Command(server) {}
@@ -110,13 +124,17 @@ UserCommand::~UserCommand() {}
 
 void	UserCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
-	std::cout << "Call User command" << std::endl;
-
-	std::string user = StringToUpper(arguments[2]);
-	Client* tmp_client = _server->getClient(user);
-	if (!tmp_client)
-		client->setUser(user);
-	else
-		client->sendMessage("USERNAME already exist on server");
-	return ;
+	if (client->getState() < REGISTERED)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
+	client->setUser(arguments[2]);
+	std::stringstream ss;
+	std::vector<std::string>::iterator it;
+	ss << arguments[4].substr(1);
+	for (it = arguments.begin() + 5; it != arguments.end(); ++it)
+		ss << *it;
+	client->setRealName(ss.str());
+	client->welcome();
 }

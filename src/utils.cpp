@@ -9,12 +9,14 @@ std::string	StringToUpper(std::string toConvert)
 
 void	logToServer(std::string &message)
 {
-	time_t ltime;
-	struct tm result;
-	char stime[32];
+	time_t rawtime;
+	struct tm *timeinfo;
+	char buffer[80];
 
-	ltime = time(NULL);
-	localtime_r(&ltime, &result);
-	std::cout << asctime_r(&result, stime) << ":" << message << std::endl;
-	// not working as hoped needs fixing
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+	std::string str(buffer);
+	std::cout << "[" << str << "] " << message << std::endl;
 }

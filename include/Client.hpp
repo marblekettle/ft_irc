@@ -11,6 +11,21 @@
 # define INIT_BUFFER 100
 class Command;
 
+
+/* The 5 states to get access are
+   LOGIN - there is only a connection
+   AUTHENTICATED - the password is set and valid
+   REGISTERED - a unique NICK is set
+   ACCESS - username and realname are set, now the client has access to the server */
+
+enum state
+{
+	LOGIN,
+	AUTHENTICATED,
+	REGISTERED,
+	ACCESS
+};
+
 class Client
 {
 	private:
@@ -21,8 +36,8 @@ class Client
 		std::string				_realname;
 		std::string				_buffer;
 		const std::string		_host;
-		bool					_isAuthorized;
 		std::queue<Command *>	_commandQueue;
+		int						_state;
 
 //	____Experimental____
 
@@ -45,7 +60,8 @@ class Client
 
 //	____________________
 
-		int					getFd();
+		int					getFd()	const;
+		int					getState() const;
 		std::string			getNick() const;
 		std::string			getUser() const;
 		std::string			getHost() const;

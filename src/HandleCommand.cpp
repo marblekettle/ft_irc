@@ -3,13 +3,13 @@
 
 HandleCommand::HandleCommand(Server* server) : _server(server)
 {
-	_commands["/JOIN"] = new JoinCommand(_server);
-	_commands["/PRIVMSG"] = new PrivMsgCommand(_server);
-	_commands["/KICK"] = new KickCommand(_server);
-	_commands["/QUIT"] = new QuitCommand(_server);
-	_commands["/MODE"] = new ModeCommand(_server);
-	_commands["/NICK"] = new NickCommand(_server);
-	_commands["/USER"] = new UserCommand(_server);
+	_commands["JOIN"] = new JoinCommand(_server);
+	_commands["PRIVMSG"] = new PrivMsgCommand(_server);
+	_commands["KICK"] = new KickCommand(_server);
+	_commands["QUIT"] = new QuitCommand(_server);
+	_commands["MODE"] = new ModeCommand(_server);
+	_commands["NICK"] = new NickCommand(_server);
+	_commands["USER"] = new UserCommand(_server);
 }
 
 HandleCommand::~HandleCommand()

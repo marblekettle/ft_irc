@@ -7,7 +7,7 @@
 Client::Client(int const fd, const std::string& host) :
 	_fd(fd),
 	_host(host),
-	_isAuthorized(false)
+	_state(LOGIN)
 {
 	_buffer.resize(INIT_BUFFER);
 	return ;
@@ -71,8 +71,8 @@ void	Client::welcome()
 {
 	if (_username.empty() || _realname.empty() || _nickname.empty())
 		return ;
+	_state = ACCESS;
 	reply(RPL_WELCOME(_nickname));
-	// Log to server
 }
 
 /*
@@ -113,9 +113,14 @@ void	Client::appendBuffer(std::string const & buf)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-int		Client::getFd()
+int			Client::getFd() const
 {
 	return (this->_fd);
+}
+
+int			Client::getState() const
+{
+	return (this->_state);
 }
 
 std::string	Client::getNick() const
