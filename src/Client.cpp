@@ -42,8 +42,7 @@ Client::~Client()
 void	Client::reply(std::string message) {
 	
 	std::string buffer;
-	buffer = getPrefix() + message + "\r\n";
-	std::cout << buffer; // Remove
+	buffer = message + "\r\n";
 	if (send(_fd, buffer.c_str(), buffer.size(), 0) < 0)
 		throw std::runtime_error("Error sending message");
 }
@@ -72,7 +71,7 @@ void	Client::welcome()
 	if (_username.empty() || _realname.empty() || _nickname.empty())
 		return ;
 	_state = ACCESS;
-	reply(RPL_WELCOME(_nickname));
+	reply(RPL_WELCOME(_host, _nickname));
 }
 
 /*

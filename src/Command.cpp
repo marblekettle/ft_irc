@@ -29,22 +29,35 @@ PrivMsgCommand::~PrivMsgCommand()
 
 void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
-	(void)client;
-	std::cout << "Call Private Msg command" << std::endl;
-	// Client*		clientToRecieve;
 	std::string name;
-	name = arguments[2];
-	// clientToRecieve =  _server->getClient(name);
-	// if (clientToRecieve)
-	// {
-	// 	std::stringstream ssMsg;
-	// 	std::vector<std::string>::iterator it;
-	// 	for (it = arguments.begin() + 2; it != arguments.end(); it++)
-	// 		ssMsg << *it;
-	// 	// ssMsg = client->getPrefix() + ssMsg;
-	// 	clientToRecieve->sendMessage(ssMsg.str());
-	// }
-	// return ;
+	name = arguments[1];
+	if (name[0] == '#') // handle channel massage
+	{
+		Channel* channel;
+		channel = _server->getChannel(name.substr(1));
+		if (channel)
+		{
+			// broadcast to channel
+			return ;
+		}
+		// error
+	}
+	else
+	{
+		Client* recv_client;
+		recv_client =  _server->getClient(name);
+		if (recv_client)
+		{
+			std::stringstream ssMsg;
+			std::vector<std::string>::iterator it;
+			ssMsg << client->getPrefix();
+			for (it = arguments.begin() + 2; it != arguments.end(); it++)
+				ssMsg << *it;
+			recv_client->reply(ssMsg.str());
+			return ;
+		}
+		// error
+	}
 }
 
 KickCommand::KickCommand(Server* server) : Command(server) {}
@@ -110,13 +123,16 @@ void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 	client->setNick(arguments[1]);
 
 	std::string reply_msg;
-	reply_msg.append(" : NICK :");
+	reply_msg.append(": NICK :");
 	reply_msg.append(arguments[1]);
 
 	client->reply(reply_msg);
 	logToServer(reply_msg);
-	client->setState(REGISTERED);
-	client->welcome();
+	if (client->getState() < REGISTERED)
+	{
+		client->welcome();
+		client->setState(REGISTERED);
+	}
 }
 
 UserCommand::UserCommand(Server* server) : Command(server) {}
@@ -158,6 +174,9 @@ void	PassCommand::execute(std::vector<std::string>& arguments, Client* client)
 		return ;
 	}
 	if (arguments[1] != _server->getPassword())
+	{
+		std::cout << "auth failed" << std::endl;
 		return ; // get disconected from server, no notification
+	}
 	client->setState(AUTHENTICATED);
 }

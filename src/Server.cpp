@@ -104,7 +104,7 @@ void		Server::run()
 	_fd.push_back(server_fd);
 	while (1) 
 	{
-		__togglepoll();
+		// __togglepoll();
 		t_fdv::iterator it_end = _fd.end();
 		if (poll(_fd.begin().base(), _fd.size(), 10) < 0)
 			throw std::runtime_error("Error");
@@ -123,21 +123,23 @@ void		Server::run()
 				}
 				clientMessage(it->fd); 
 			}
-			if (it->revents & POLLOUT) {
-				Client*	cl = _clients[it->fd];
-				if (cl && cl->nResponses() > 0) {
-					t_str tosend = cl->popResponse();
-					int sent = send(it->fd, tosend.c_str(), tosend.size(), 0);
-					if (static_cast<unsigned int>(sent) != tosend.size())
-						std::cerr << "Error: Whole message not sent" << std::endl;
-				} else {
-					std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
-				}
-			}
+			// if (it->revents & POLLOUT) {
+			// 	Client*	cl = _clients[it->fd];
+			// 	if (cl && cl->nResponses() > 0) {
+			// 		t_str tosend = cl->popResponse();
+			// 		int sent = send(it->fd, tosend.c_str(), tosend.size(), 0);
+			// 		if (static_cast<unsigned int>(sent) != tosend.size())
+			// 			std::cerr << "Error: Whole message not sent" << std::endl;
+			// 	} else {
+			// 		std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
+			// 	}
+			// }
 		}
 	}	
 }
 
+/* when the client sending multiple command at once then read message reads it as one message.
+   so now the login procedure breaks if you use a client like irssi  */
 
 std::string		Server::readMessage(int fd)
 {
@@ -154,7 +156,7 @@ std::string		Server::readMessage(int fd)
 		}
 		message.append(buf);
 	}
-	// __queue(fd, message);
+	__queue(fd, message);
 	std::cout << "Client #" << fd << " :" << message ;
 	return (message);
 }
@@ -256,6 +258,16 @@ Client*		Server::getClient(std::string& username) const
 t_clients	Server::getClients() const
 {
 	return (_clients);
+}
+
+Channel*	Server::getChannel(std::string chan_name)
+{
+	std::map<std::string, Channel *>::iterator it;
+
+	it = _channels.find(chan_name);
+	if (it != _channels.end())
+		return (it->second);
+	return (nullptr);
 }
 
 // int		Server::getConnections(t_conn& conn) {
