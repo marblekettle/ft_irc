@@ -102,6 +102,16 @@ class PassCommand : public Command
 		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
+class PingCommand : public Command
+{
+	private:
+
+	public:
+		PingCommand(Server* server);
+		~PingCommand();
+		void	execute(std::vector<std::string>& arguments, Client* client);
+};
+
 # include "Channel.hpp"
 
 #endif /* COMMAND_HPP */

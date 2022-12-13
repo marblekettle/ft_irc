@@ -31,7 +31,7 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 	std::stringstream ssNameList;
 	if (!channel)
 	{
-		ssNameList << client->getNick();
+		ssNameList << "#" << client->getNick();
 		channel = new Channel(arguments[1].substr(1), client);
 		_server->addChannel(channel);
 		client->reply(RPL_JOIN(prefix, arguments[1]));
@@ -41,7 +41,12 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 		std::vector<Client *>::iterator it;
 		channel->addClient(client);
 		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it)
-			ssNameList << (*it)->getNick() << " ";
+		{
+			if (channel->isAdmin((*it)->getNick()))
+				ssNameList << "#" << (*it)->getNick() << " ";
+			else
+				ssNameList << (*it)->getNick() << " ";
+		}
 	
 		channel->broadCast(RPL_JOIN(prefix, arguments[1]), nullptr);
 	}
@@ -83,7 +88,12 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 		Channel* channel;
 		channel = _server->getChannel(name.substr(1));
 		if (channel)
-			channel->broadCast(RPL_PRIVMSG(prefix, name, ssMsg.str()), client);
+		{
+			if (!channel->inClientList(client))
+				client->reply(ERR_NOTONCHANNEL(client->getHost(), name));
+			else
+				channel->broadCast(RPL_PRIVMSG(prefix, name, ssMsg.str()), client);
+		}
 		else 
 			client->reply(ERR_NOSUCHNICK(client->getHost(), name));
 		return ;
@@ -218,4 +228,18 @@ void	PassCommand::execute(std::vector<std::string>& arguments, Client* client)
 		return ; // get disconected from server, no notification
 	}
 	client->setState(AUTHENTICATED);
+}
+
+PingCommand::PingCommand(Server* server) : Command(server) {}
+
+PingCommand::~PingCommand() {}
+
+void	PingCommand::execute(std::vector<std::string>& arguments, Client* client)
+{
+	if (arguments[1].empty())
+	{
+		client->reply(ERR_NOORIGIN(client->getHost()));
+		return ;
+	}
+	client->reply(RPL_PING(client->getHost(), client->getNick()));
 }

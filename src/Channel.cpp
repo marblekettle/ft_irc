@@ -68,6 +68,28 @@ void	Channel::broadCast(std::string message, Client *sender)
 	}
 }
 
+bool	Channel::inClientList(Client* client)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _clientList.begin(); it != _clientList.end(); ++it)
+	{
+		if (*it == client)
+			return (true);
+	}
+	return (false);
+}
+
+bool	Channel::isAdmin(Client* client)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _admins.begin(); it != _admins.end(); ++it)
+	{
+		if (*it == client)
+			return (true);
+	}
+	return (false);
+}
+
 /*
 ** --------------------------------- COMMANDS ---------------------------------
 */
