@@ -13,11 +13,40 @@ JoinCommand::~JoinCommand()
 }
 
 void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
-{
-	(void)client;
-	(void)arguments;
-	std::cout << "Call join command" << std::endl;
-	return ;
+{ 
+	Channel* channel;
+	std::string prefix(client->getPrefix());
+
+	if (client->getState() < ACCESS)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
+	if (arguments[1].empty() || arguments[1][0] != '#')
+	{
+		client->reply(ERR_NEEDMOREPARAMS(client->getHost(), arguments[0]));
+		return ;
+	}
+	channel = _server->getChannel(arguments[1].substr(1));
+	std::stringstream ssNameList;
+	if (!channel)
+	{
+		ssNameList << client->getNick();
+		channel = new Channel(arguments[1].substr(1), client);
+		_server->addChannel(channel);
+		client->reply(RPL_JOIN(prefix, arguments[1]));
+	}
+	else
+	{
+		std::vector<Client *>::iterator it;
+		channel->addClient(client);
+		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it)
+			ssNameList << (*it)->getNick() << " ";
+	
+		channel->broadCast(RPL_JOIN(prefix, arguments[1]), nullptr);
+	}
+	client->reply(RPL_NAMREPLY(client->getHost(), client->getNick(), arguments[1], ssNameList.str()));
+	client->reply(RPL_ENDOFNAMES(client->getHost(), client->getNick(), arguments[1]));
 }
 
 PrivMsgCommand::PrivMsgCommand(Server* server) : Command(server) {}
@@ -30,33 +59,44 @@ PrivMsgCommand::~PrivMsgCommand()
 void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
 	std::string name;
+	std::string prefix(client->getPrefix());
+
 	name = arguments[1];
+	if (arguments[1].empty())
+	{
+		client->reply(ERR_NORECIPIENT(client->getHost(), arguments[0]));
+		return ;
+	}
+	if (arguments[2].empty())
+	{
+		client->reply(ERR_NOTEXTOSEND(client->getHost()));
+		return ;
+	}
+	// concat argument strings to ssMsg
+	std::stringstream ssMsg;
+	std::vector<std::string>::iterator it;
+	for (it = arguments.begin() + 2; it != arguments.end(); ++it)
+		ssMsg << *it;
+
 	if (name[0] == '#') // handle channel massage
 	{
 		Channel* channel;
 		channel = _server->getChannel(name.substr(1));
 		if (channel)
-		{
-			// broadcast to channel
-			return ;
-		}
-		// error
+			channel->broadCast(RPL_PRIVMSG(prefix, name, ssMsg.str()), client);
+		else 
+			client->reply(ERR_NOSUCHNICK(client->getHost(), name));
+		return ;
 	}
-	else
+	else //handle client message
 	{
 		Client* recv_client;
-		recv_client =  _server->getClient(name);
+		recv_client = _server->getClient(name);
 		if (recv_client)
-		{
-			std::stringstream ssMsg;
-			std::vector<std::string>::iterator it;
-			ssMsg << client->getPrefix();
-			for (it = arguments.begin() + 2; it != arguments.end(); it++)
-				ssMsg << *it;
-			recv_client->reply(ssMsg.str());
-			return ;
-		}
-		// error
+			recv_client->reply(RPL_PRIVMSG(prefix, name, ssMsg.str()));
+		else
+			client->reply(ERR_NOSUCHNICK(client->getHost(), name));
+		return ;
 	}
 }
 
@@ -109,7 +149,6 @@ void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 		client->reply(ERR_NOTREGISTERED(client->getHost()));
 		return ;
 	}
-	std::cout << "Call Nick command" << std::endl;
 	if (arguments[0].empty() || arguments[1].empty())
 	{
 		client->reply(ERR_NONICKNAMEGIVEN(client->getHost()));
@@ -117,7 +156,7 @@ void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 	}
 	
 	if (_server->getClient(arguments[1])) {
-		client->reply(ERR_NICKNAMEINUSE(client->getHost(), client->getNick()));
+		client->reply(ERR_NICKNAMEINUSE(client->getHost(), client->getNick(), arguments[1]));
 		return ;
 	}
 	client->setNick(arguments[1]);
@@ -151,7 +190,7 @@ void	UserCommand::execute(std::vector<std::string>& arguments, Client* client)
 	std::vector<std::string>::iterator it;
 	ss << arguments[4].substr(1);
 	for (it = arguments.begin() + 5; it != arguments.end(); ++it)
-		ss << *it;
+		ss << " " << *it;
 	client->setRealName(ss.str());
 	client->setState(ACCESS);
 	client->welcome();

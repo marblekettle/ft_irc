@@ -58,11 +58,21 @@ void	Channel::removeClient(Client* client)
 	std::remove(_clientList.begin(), _clientList.end(), client);
 }
 
+void	Channel::broadCast(std::string message, Client *sender)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _clientList.begin(); it != _clientList.end(); ++it)
+	{
+		if (*it != sender)
+			(*it)->reply(message);
+	}
+}
+
 /*
 ** --------------------------------- COMMANDS ---------------------------------
 */
 
-void	Channel::join(Client * new_client)
+void	Channel::addClient(Client* new_client)
 {
 	std::vector<Client *>::iterator it;
 
@@ -70,7 +80,6 @@ void	Channel::join(Client * new_client)
 	if (it != _clientList.end())
 		return ; // error: client already in vector
 	this->_clientList.push_back(new_client);
-	// TODO implementation (iterate to client->list ->add commands(join channel update) to all clients queues
 }
 
 std::vector<Client *> &	Channel::getClientList( )

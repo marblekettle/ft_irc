@@ -102,5 +102,6 @@ class PassCommand : public Command
 		void	execute(std::vector<std::string>& arguments, Client* client);
 };
 
+# include "Channel.hpp"
 
 #endif /* COMMAND_HPP */

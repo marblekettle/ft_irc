@@ -23,12 +23,13 @@ class Channel
 
 		std::string				getPassword() const;
 		std::string				getName() const;
-		void					removeClient(Client *client);
-
-		void					join(Client *new_client);
 		std::vector<Client *> &	getClientList();
+		void					broadCast(std::string message, Client* sender);
 
+		void					removeClient(Client *client);
+		void					addClient(Client *new_client);
 		void					setPassword(std::string &password, Client* client);
+
 
 };
 
