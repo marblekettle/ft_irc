@@ -65,6 +65,12 @@ void	Server::addChannel(Channel * channel) {
 	std::cout << "Channel: '" << channel->getName() << "' added" << std::endl;
 }
 
+void	Server::popChannel(Channel* channel) {
+
+	_channels.erase(channel->getName());
+	delete channel;
+}
+
 void	Server::__queue(int fd, t_str data) {
 	t_datap	datap;
 	datap.first = fd;

@@ -16,6 +16,7 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 { 
 	Channel* channel;
 	std::string prefix(client->getPrefix());
+	size_t	nb_of_args = arguments.size();
 
 	if (client->getState() < ACCESS)
 	{
@@ -34,21 +35,31 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 		ssNameList << "#" << client->getNick();
 		channel = new Channel(arguments[1].substr(1), client);
 		_server->addChannel(channel);
+		if (nb_of_args == 3)
+			channel->setPassword(arguments[2]);
 		client->reply(RPL_JOIN(prefix, arguments[1]));
 	}
 	else
 	{
 		std::vector<Client *>::iterator it;
+		if (channel->getPassword().size() > 0)
+		{
+			if (nb_of_args < 3 || arguments[2] != channel->getPassword())
+			{
+				client->reply(ERR_BADCHANNELKEY(client->getHost(), arguments[1].substr(1)));
+				return ;
+			}
+			channel->setPassword(arguments[2]);
+		}
 		channel->addClient(client);
 		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it)
 		{
-			if (channel->isAdmin((*it)->getNick()))
+			if (channel->isAdmin(*it))
 				ssNameList << "#" << (*it)->getNick() << " ";
 			else
 				ssNameList << (*it)->getNick() << " ";
 		}
-	
-		channel->broadCast(RPL_JOIN(prefix, arguments[1]), nullptr);
+		channel->broadCast(RPL_JOIN(prefix, arguments[1]));
 	}
 	client->reply(RPL_NAMREPLY(client->getHost(), client->getNick(), arguments[1], ssNameList.str()));
 	client->reply(RPL_ENDOFNAMES(client->getHost(), client->getNick(), arguments[1]));
@@ -66,12 +77,17 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 	std::string name;
 	std::string prefix(client->getPrefix());
 
-	name = arguments[1];
+	if (client->getState() < ACCESS)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
 	if (arguments[1].empty())
 	{
 		client->reply(ERR_NORECIPIENT(client->getHost(), arguments[0]));
 		return ;
 	}
+	name = arguments[1];
 	if (arguments[2].empty())
 	{
 		client->reply(ERR_NOTEXTOSEND(client->getHost()));
@@ -90,7 +106,7 @@ void	PrivMsgCommand::execute(std::vector<std::string>& arguments, Client* client
 		if (channel)
 		{
 			if (!channel->inClientList(client))
-				client->reply(ERR_NOTONCHANNEL(client->getHost(), name));
+				client->reply(ERR_CANNOTSENDTOCHAN(client->getHost(), client->getNick(), name));
 			else
 				channel->broadCast(RPL_PRIVMSG(prefix, name, ssMsg.str()), client);
 		}
@@ -116,9 +132,42 @@ KickCommand::~KickCommand() {}
 
 void	KickCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
-	(void)client;
-	(void)arguments;
-	std::cout << "Call Kick command" << std::endl;
+	Channel* channel;
+	Client*	client_kick;
+
+	size_t nb_of_args = arguments.size();
+	if (client->getState() < ACCESS)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
+	if (nb_of_args < 3 || arguments[1][0] != '#')
+	{
+		client->reply(ERR_NEEDMOREPARAMS(client->getHost(), arguments[0]));
+		return ;
+	}
+	channel = _server->getChannel(arguments[1].substr(1));
+
+	if (!channel)
+	{
+		client->reply(ERR_NOSUCHCHANNEL(client->getHost(), arguments[1].substr(1)));
+		return ;
+	}
+	client_kick = channel->getClient(arguments[2]);
+	if (!channel->inClientList(client) || !client_kick)
+	{
+		client->reply(ERR_NOTONCHANNEL(client->getHost(), arguments[1].substr(1)));
+		return ;
+	}
+	if (!channel->isAdmin(client))
+	{
+		client->reply(ERR_CHANOPRIVSNEEDED(client->getHost(), arguments[1].substr(1)));
+		return ;
+	}
+	channel->removeClient(client_kick);
+	std::string msg;
+	msg = (arguments.size() > 3) ? arguments[3] : "";
+	channel->broadCast(RPL_KICK(client->getPrefix(), arguments[1], arguments[2], msg), client);
 	return ;
 }
 
@@ -196,8 +245,8 @@ void	UserCommand::execute(std::vector<std::string>& arguments, Client* client)
 		return ;
 	}
 	client->setUser(arguments[2]);
-	std::stringstream ss;
 	std::vector<std::string>::iterator it;
+	std::stringstream ss;
 	ss << arguments[4].substr(1);
 	for (it = arguments.begin() + 5; it != arguments.end(); ++it)
 		ss << " " << *it;
@@ -224,7 +273,7 @@ void	PassCommand::execute(std::vector<std::string>& arguments, Client* client)
 	}
 	if (arguments[1] != _server->getPassword())
 	{
-		std::cout << "auth failed" << std::endl;
+		_server->disconnectClient(client->getFd());
 		return ; // get disconected from server, no notification
 	}
 	client->setState(AUTHENTICATED);
@@ -242,4 +291,42 @@ void	PingCommand::execute(std::vector<std::string>& arguments, Client* client)
 		return ;
 	}
 	client->reply(RPL_PING(client->getHost(), client->getNick()));
+}
+
+PartCommand::PartCommand(Server* server) : Command(server) {}
+
+PartCommand::~PartCommand() {}
+
+void	PartCommand::execute(std::vector<std::string>& arguments, Client* client)
+{
+	Channel* channel;
+
+	if (client->getState() < ACCESS)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
+	if (arguments[1].empty() || arguments[1][0] != '#')
+	{
+		client->reply(ERR_NEEDMOREPARAMS(client->getHost(), arguments[0]));
+		return ;
+	}
+	channel = _server->getChannel(arguments[1].substr(1));
+	if (!channel)
+	{
+		client->reply(ERR_NOSUCHCHANNEL(client->getHost(), arguments[1].substr(1)));
+		return ;
+	}
+	if (!channel->inClientList(client))
+	{
+		client->reply(ERR_NOTONCHANNEL(client->getHost(), channel->getName()));
+		return ;
+	}
+	std::string msg;
+	msg = (arguments.size() > 2) ? arguments[2] : "";
+
+	channel->removeClient(client);
+	channel->broadCast(RPL_PART(client->getPrefix(), arguments[1], msg));
+	if (channel->getClientList().size() < 1)
+		_server->popChannel(channel);
 }

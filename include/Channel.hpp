@@ -24,14 +24,16 @@ class Channel
 		std::string				getPassword() const;
 		std::string				getName() const;
 		std::vector<Client *> &	getClientList();
+		Client*					getClient(std::string nickname);
 
 		bool					inClientList(Client* client);
 		bool					isAdmin(Client* client);
 
 		void					broadCast(std::string message, Client* sender);
+		void					broadCast(std::string message);
 		void					removeClient(Client* client);
 		void					addClient(Client* new_client);
-		void					setPassword(std::string &password, Client* client);
+		void					setPassword(std::string &password);
 
 
 };

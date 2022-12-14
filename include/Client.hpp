@@ -11,7 +11,6 @@
 # define INIT_BUFFER 100
 class Command;
 
-
 /* The 5 states to get access are
    LOGIN - there is only a connection
    AUTHENTICATED - the password is set and valid

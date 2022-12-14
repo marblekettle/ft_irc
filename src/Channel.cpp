@@ -51,11 +51,16 @@ Channel::~Channel()
 void	Channel::removeClient(Client* client)
 {
 	std::vector<Client *>::iterator it;
-
+	/* remove from client list */
 	it = std::find(_clientList.begin(), _clientList.end(), client);
 	if (it == _clientList.end())
-		return ; // error: client not in vector
+		return ;
 	std::remove(_clientList.begin(), _clientList.end(), client);
+	/* remove from admin list */
+	it = std::find(_admins.begin(), _admins.end(), client);
+	if (it == _admins.end())
+		return ;
+	std::remove(_admins.begin(), _admins.end(), client);
 }
 
 void	Channel::broadCast(std::string message, Client *sender)
@@ -64,6 +69,15 @@ void	Channel::broadCast(std::string message, Client *sender)
 	for (it = _clientList.begin(); it != _clientList.end(); ++it)
 	{
 		if (*it != sender)
+			(*it)->reply(message);
+	}
+}
+
+void	Channel::broadCast(std::string message)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _clientList.begin(); it != _clientList.end(); ++it)
+	{
 			(*it)->reply(message);
 	}
 }
@@ -113,11 +127,9 @@ std::vector<Client *> &	Channel::getClientList( )
 ** --------------------------------- MUTATORS ---------------------------------
 */
 
-void		Channel::setPassword(std::string &password, Client* client)
+void		Channel::setPassword(std::string &password)
 {
-	if (std::find(_admins.begin(), _admins.end(), client) != _admins.end())
 		this->_password = password;
-	/* return error client is not admin */
 }
 
 /*
@@ -134,6 +146,17 @@ std::string		Channel::getPassword() const
 std::string		Channel::getName() const
 {
 	return (this->_name);
+}
+
+Client*		Channel::getClient(std::string nickname)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _clientList.begin(); it != _clientList.end(); ++it)
+	{
+		if ((*it)->getNick() == nickname)
+			return (*it);
+	}
+	return (nullptr);
 }
 
 /* ************************************************************************** */
