@@ -22,7 +22,7 @@ class Client
 		std::string				_buffer;
 		const std::string		_host;
 		bool					_isAuthorized;
-		std::queue<Command *>	_commandQueue;
+		std::queue<t_str>		_commandQueue;
 
 //	____Experimental____
 
@@ -42,6 +42,7 @@ class Client
 		void				queueResponse(const t_str& message);
 		int					nResponses();
 		t_str				popResponse();
+		bool				readMessage(t_str& message);
 
 //	____________________
 
@@ -55,7 +56,7 @@ class Client
 
 		void				setNick(const std::string& nick);
 		void				setUser(const std::string& user);
-		void				setRealName(const std::string& user);
+		void		 		setRealName(const std::string& user);
 		void				setBuffer(const std::string& user);
 		void				appendBuffer(const std::string& user);
 		void				clearBuffer();
@@ -63,8 +64,10 @@ class Client
 		void				welcome();
 		void				reply(std::string message);
 		void				sendMessage(std::string message);
-		Command *			getNextCommand();
-		void				addCommandToQueue( Command * command );
+//		Command *			getNextCommand();
+		void				addCommandToQueue(const t_str& string);
+		bool				popCommand(t_str& out);
+		bool				readMessages();
 };
 
 std::ostream &			operator<<( std::ostream& o, Client const& i );

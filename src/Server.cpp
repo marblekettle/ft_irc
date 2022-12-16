@@ -131,40 +131,24 @@ void		Server::run()
 					if (static_cast<unsigned int>(sent) != tosend.size())
 						std::cerr << "Error: Whole message not sent" << std::endl;
 				} else {
-					std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
+					// std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
 				}
 			}
 		}
 	}	
 }
 
+/*
 
-std::string		Server::readMessage(int fd)
-{
-	t_str	message;
-	char	buf[100];
-
-	bzero(buf, 100);
-	while (!std::strstr(buf, "\n"))
-	{
-		if (recv(fd, buf, 100, 0) < 0)
-		{
-			if (errno != EWOULDBLOCK)
-				throw (std::runtime_error("Error with reading buf from client"));
-		}
-		message.append(buf);
-	}
-	// __queue(fd, message);
-	std::cout << "Client #" << fd << " :" << message ;
-	return (message);
-}
+*/
 
 void	Server::clientMessage(int fd)
 {
 	Client *client = _clients.at(fd);
-	std::string message;
-	message = readMessage(fd);
-	_handleCommand->call(message, client);
+	client->readMessages();
+	t_str message;
+	while (client->popCommand(message))
+		_handleCommand->call(message, client);
 	// broadcast(fd, readMessage(fd));
 }
 

@@ -62,6 +62,9 @@ class Server {
 		uint32_t						getPort() const;
 		Client*							getClient(std::string& username) const;
 		t_clients						getClients() const;
+		
+		Channel*						getChannel(t_str name) const;
+
 		class 	socketFailedError : public std::exception {
 			virtual const char*	what() const throw();
 		};

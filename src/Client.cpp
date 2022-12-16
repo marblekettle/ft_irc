@@ -9,7 +9,7 @@ Client::Client(int const fd, const std::string& host) :
 	_host(host),
 	_isAuthorized(false)
 {
-	_buffer.resize(INIT_BUFFER);
+	//_buffer.resize(INIT_BUFFER);
 	return ;
 }
 
@@ -55,16 +55,52 @@ void	Client::sendMessage(std::string message ) {
 	_commandQueue.pop();
 }
 
+/*
 Command *	Client::getNextCommand( ) {
 
 	if (_commandQueue.empty())
 		return NULL;
 	return _commandQueue.front(); // TODO pop cmd only after success!? (ACK)
 }
+*/
 
-void	Client::addCommandToQueue( Command * command ) {
+void	Client::addCommandToQueue(const t_str& string) {
 
-	_commandQueue.push(command);
+	_commandQueue.push(string);
+}
+
+bool	Client::popCommand(t_str& out) {
+	if (_commandQueue.size() == 0) 
+		return (false);
+	out = _commandQueue.front();
+	_commandQueue.pop();
+	return (true);
+}
+
+bool	Client::readMessages() {
+	t_str	message;
+	if (_buffer.length() == 0) {
+		char	buf[10];
+		int		ret = 1;
+		while (ret > 0) {
+			bzero(buf, 10);
+			ret = recv(_fd, buf, 9, 0);
+			if (ret < 0)
+			{
+				if (errno != EWOULDBLOCK)
+					throw (std::runtime_error("Error with reading buf from client"));
+			}
+			_buffer.append(buf);
+			std::cerr << _buffer << std::endl;
+		}
+	}
+	size_t index = _buffer.find('\n');
+	if (index == std::string::npos)
+		return (false);
+	message = _buffer.substr(0, index);
+	_buffer = _buffer.substr(index + 1);
+	_commandQueue.push(message);
+	return (true);
 }
 
 void	Client::welcome()
