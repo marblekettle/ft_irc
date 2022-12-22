@@ -8,9 +8,10 @@
 # include <queue>
 # include <sstream>
 # include <sys/socket.h>
+# include "utils.hpp"
 # define INIT_BUFFER 100
 class Command;
-
+class Channel;
 /* The 5 states to get access are
    LOGIN - there is only a connection
    AUTHENTICATED - the password is set and valid
@@ -25,6 +26,8 @@ enum state
 	ACCESS
 };
 
+/* TODO add vector of current channels pointers where the client is in */
+
 class Client
 {
 	private:
@@ -37,6 +40,7 @@ class Client
 		const std::string		_host;
 		std::queue<Command *>	_commandQueue;
 		int						_state;
+		std::vector<Channel *>	_activeChannels;
 
 //	____Experimental____
 

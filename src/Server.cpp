@@ -96,11 +96,17 @@ int		Server::openSocket()
 	serv_addr.sin_port = htons(_port);
 	//serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
+
 	if (bind(socket_fd, reinterpret_cast<t_addr*>(&serv_addr), sizeof(t_addr)))
 		throw std::runtime_error("Error");
 	
 	if (listen(socket_fd, 10) < 0)						//Set listening FD to listen
 		throw std::runtime_error("Error");
+
+	/* Tried to take the adress of the server but i got 0.0.0.0 */
+	// char hostname[NI_MAXHOST];
+	// if (getnameinfo((struct sockaddr *) &serv_addr, sizeof(serv_addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
+	// 	throw std::runtime_error("Error");
 	return (socket_fd);
 }
 
@@ -112,7 +118,7 @@ void		Server::run()
 	{
 		// __togglepoll();
 		t_fdv::iterator it_end = _fd.end();
-		if (poll(_fd.begin().base(), _fd.size(), 10) < 0)
+		if (poll(_fd.begin().base(), _fd.size(), 1000) < 0)
 			throw std::runtime_error("Error");
 		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
 			if (it->revents == 0)
@@ -120,12 +126,12 @@ void		Server::run()
 			if (it->revents & (POLLHUP | POLLNVAL | POLLERR)) {
 				std::cout << "FD " << it->fd << " disconnected!" << std::endl;
 				disconnectClient(it->fd);
-				break ;
+				continue ;
 			}
 			if (it->revents & POLLIN) {
 				if (it->fd == _socket) {
 					connectClient();
-					break ;	//	Could be continue instead?
+					continue ;	//	Could be continue instead?
 				}
 				clientMessage(it->fd); 
 			}
@@ -162,37 +168,90 @@ std::string		Server::readMessage(int fd)
 		}
 		message.append(buf);
 	}
-	__queue(fd, message);
-	std::cout << "Client #" << fd << " :" << message ;
+	// __queue(fd, message);
 	return (message);
 }
 
 void	Server::clientMessage(int fd)
 {
 	Client *client = _clients.at(fd);
+	if (!client)
+		return ;
+	
 	std::string message;
 	message = readMessage(fd);
-	_handleCommand->call(message, client);
+
+	std::vector<std::string> tokens;
+    std::stringstream ss(message);
+    std::string token;
+
+    while (std::getline(ss, token, '\n')) {
+		std::cout << "token = " << token << std::endl;
+		_handleCommand->call(token, client);
+        tokens.push_back(token);
+		token.clear();
+	}
 	// broadcast(fd, readMessage(fd));
 }
 
+// std::vector<std::string>		Server::readMessage(int fd)
+// {
+// 	t_str	message;
+// 	char	buf[100];
 
-void	Server::broadcast(int fd, std::string message)
-{
-	std::ostringstream ss;
+// 	bzero(buf, 100);
+// 	while (!std::strstr(buf, "\n"))
+// 	{
+// 		if (recv(fd, buf, 100, 0) < 0)
+// 		{
+// 			if (errno != EWOULDBLOCK)
+// 				throw (std::runtime_error("Error with reading buf from client"));
+// 		}
+// 		message.append(buf);
+// 	}
+ 
+// 	std::vector<std::string> tokens;
+//     std::stringstream ss(message);
+//     std::string token;
 
-	ss << "From client #" << fd << " : "<< message;
+//     while (std::getline(ss, token, '\n')) {
+//         tokens.push_back(token);
+// 		std::cout << "Client #" << fd << " :" << token ;
+// 		__queue(fd, token);
+//     }
+//     return (tokens);
+// }
 
-	std::map<int, Client*>::iterator it;
+// void	Server::clientMessage(int fd)
+// {
+// 	Client *client = _clients.at(fd);
+// 	std::vector<std::string> messages;
+// 	std::vector<std::string>::iterator it;
+// 	messages = readMessage(fd);
 
-	for (it = (_clients.begin()); it != _clients.end(); ++it)
-	{
-		if (it->first == fd || it->first == _socket)
-			continue;
-//		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
-		it->second->queueResponse(ss.str());
-	}
-}
+// 	for (it = messages.begin(); it != messages.end(); ++it) {
+// 		std::cout << "first cmd = " << *it << std::endl;
+// 		_handleCommand->call(*it, client);
+// 	}
+// }
+
+
+// void	Server::broadcast(int fd, std::string message)
+// {
+// 	std::ostringstream ss;
+
+// 	ss << "From client #" << fd << " : "<< message;
+
+// 	std::map<int, Client*>::iterator it;
+
+// 	for (it = (_clients.begin()); it != _clients.end(); ++it)
+// 	{
+// 		if (it->first == fd || it->first == _socket)
+// 			continue;
+// //		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
+// 		it->second->queueResponse(ss.str());
+// 	}
+// }
 
 void	Server::disconnectClient(int fd) 
 {

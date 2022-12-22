@@ -45,6 +45,7 @@ void	Client::reply(std::string message) {
 	buffer = message + "\r\n";
 	if (send(_fd, buffer.c_str(), buffer.size(), 0) < 0)
 		throw std::runtime_error("Error sending message");
+	logToServer(message);
 }
 
 void	Client::sendMessage(std::string message ) {

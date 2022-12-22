@@ -34,6 +34,8 @@ HandleCommand::~HandleCommand()
 
 void	HandleCommand::call(std::string &message, Client* client)
 {
+	if (message.size() < 1)
+		return ;
 	std::string temp;
 	std::string cut = message.substr(0, message.find('\n'));
 	size_t				pos = 0;

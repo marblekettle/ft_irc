@@ -7,7 +7,8 @@
 
 Channel::Channel(const std::string &name, Client *admin) :
 	_name(name),
-	_password("")
+	_password(""),
+	_l(-1)
 {
 	this->_admins.push_back(admin);
 	this->_clientList.push_back(admin);
@@ -61,6 +62,17 @@ void	Channel::removeClient(Client* client)
 	if (it == _admins.end())
 		return ;
 	std::remove(_admins.begin(), _admins.end(), client);
+}
+
+void	Channel::removeAdmin(Client* admin)
+{
+	std::vector<Client *>::iterator it;
+
+	/* remove from admin list */
+	it = std::find(_admins.begin(), _admins.end(), admin);
+	if (it == _admins.end())
+		return ;
+	std::remove(_admins.begin(), _admins.end(), admin);
 }
 
 void	Channel::broadCast(std::string message, Client *sender)
@@ -118,6 +130,16 @@ void	Channel::addClient(Client* new_client)
 	this->_clientList.push_back(new_client);
 }
 
+void	Channel::addAdmin(Client* admin)
+{
+	std::vector<Client *>::iterator it;
+
+	it = std::find(_admins.begin(), _admins.end(), admin);
+	if (it != _admins.end())
+		return ; // error: client already in vector
+	this->_admins.push_back(admin);
+}
+
 std::vector<Client *> &	Channel::getClientList( )
 {
 	return _clientList;
@@ -129,7 +151,12 @@ std::vector<Client *> &	Channel::getClientList( )
 
 void		Channel::setPassword(std::string &password)
 {
-		this->_password = password;
+	this->_password = password;
+}
+
+void		Channel::setLimit(int const limit)
+{
+	this->_l = limit;
 }
 
 /*
@@ -157,6 +184,13 @@ Client*		Channel::getClient(std::string nickname)
 			return (*it);
 	}
 	return (nullptr);
+}
+
+int 		Channel::getLimit() const
+{
+	if (this->_l < 0)
+		return (INT_MAX);
+	return (this->_l);
 }
 
 /* ************************************************************************** */

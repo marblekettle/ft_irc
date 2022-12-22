@@ -1,6 +1,10 @@
 #ifndef COMMAND_HPP
 # define COMMAND_HPP
 
+# include "Server.hpp"
+# include "Client.hpp"
+# include "utils.hpp"
+# include "responses.hpp"
 # include "Types.hpp"
 # include <sstream>
 
@@ -70,6 +74,11 @@ class ModeCommand : public Command
 		ModeCommand(Server* server);
 		~ModeCommand();
 		void	execute(std::vector<std::string>& arguments, Client* client);
+	
+		bool	chanKey(std::vector<std::string>& arguments, Client* client, Channel* channel);
+		bool	chanInvite(std::vector<std::string>& arguments, Client* client, Channel* channel);
+		bool	chanLimit(std::vector<std::string>& arguments, Client* client, Channel* channel);
+		bool	chanOper(std::vector<std::string>& arguments, Client* client, Channel* channel);
 };
 
 class NickCommand : public Command

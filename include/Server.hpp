@@ -57,6 +57,7 @@ class Server {
 
 		void	clientMessage(int fd);
 		void	broadcast(int fd, std::string message);
+		// std::vector<std::string>	readMessage(int fd);
 		t_str	readMessage(int fd);
 
 
