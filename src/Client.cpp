@@ -77,9 +77,8 @@ bool	Client::popCommand(t_str& out) {
 	return (true);
 }
 
-bool	Client::readMessages() {
-	t_str	message;
-	if (_buffer.length() == 0) {
+bool	Client::readMessages(t_str& message) {
+/*	if (_buffer.length() == 0) {
 		char	buf[10];
 		int		ret = 1;
 		while (ret > 0) {
@@ -94,12 +93,26 @@ bool	Client::readMessages() {
 			std::cerr << _buffer << std::endl;
 		}
 	}
+*/
+	char	buf[10];
+	while (1) {
+		bzero(buf, 10);
+		int ret = recv(_fd, buf, 9, 0);
+		if (ret < 0)
+		{
+			if (errno != EWOULDBLOCK)
+				throw (std::runtime_error("Error with reading buf from client"));
+		}
+		if (ret == 0)
+			break ;
+		_buffer.append(buf);
+		std::cerr << _buffer << std::endl;
+	}
 	size_t index = _buffer.find('\n');
 	if (index == std::string::npos)
 		return (false);
 	message = _buffer.substr(0, index);
 	_buffer = _buffer.substr(index + 1);
-	_commandQueue.push(message);
 	return (true);
 }
 

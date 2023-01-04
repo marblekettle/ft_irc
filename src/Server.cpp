@@ -135,20 +135,30 @@ void		Server::run()
 				}
 			}
 		}
+		while (_dataq.size() > 0) {
+			int clfd = _dataq.front().first;
+			Client*	cl = _clients[clfd];
+			if (cl)
+				_handleCommand->call(_dataq.front().second, cl);
+			_dataq.pop();
+		}
 	}	
 }
 
 /*
-
+	size_t index = _buffer.find('\n');
+	if (index == std::string::npos)
+		return (false);
+	message = _buffer.substr(0, index);
+	_buffer = _buffer.substr(index + 1);
 */
 
 void	Server::clientMessage(int fd)
 {
 	Client *client = _clients.at(fd);
-	client->readMessages();
 	t_str message;
-	while (client->popCommand(message))
-		_handleCommand->call(message, client);
+	while (client->readMessages(message))
+		__queue(fd, message);
 	// broadcast(fd, readMessage(fd));
 }
 

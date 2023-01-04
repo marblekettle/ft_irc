@@ -67,7 +67,7 @@ class Client
 //		Command *			getNextCommand();
 		void				addCommandToQueue(const t_str& string);
 		bool				popCommand(t_str& out);
-		bool				readMessages();
+		bool				readMessages(t_str& message);
 };
 
 std::ostream &			operator<<( std::ostream& o, Client const& i );
