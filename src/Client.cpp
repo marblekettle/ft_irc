@@ -102,11 +102,11 @@ bool	Client::readMessages(t_str& message) {
 		{
 			if (errno != EWOULDBLOCK)
 				throw (std::runtime_error("Error with reading buf from client"));
+			break ;
 		}
 		if (ret == 0)
 			break ;
 		_buffer.append(buf);
-		std::cerr << _buffer << std::endl;
 	}
 	size_t index = _buffer.find('\n');
 	if (index == std::string::npos)

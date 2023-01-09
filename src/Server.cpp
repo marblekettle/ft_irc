@@ -136,6 +136,7 @@ void		Server::run()
 			}
 		}
 		while (_dataq.size() > 0) {
+			//std::cerr << _dataq.front().second << std::endl;
 			int clfd = _dataq.front().first;
 			Client*	cl = _clients[clfd];
 			if (cl)
