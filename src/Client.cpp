@@ -108,11 +108,11 @@ bool	Client::readMessages(t_str& message) {
 			break ;
 		_buffer.append(buf);
 	}
-	size_t index = _buffer.find('\n');
+	size_t index = _buffer.find("\r\n");
 	if (index == std::string::npos)
 		return (false);
 	message = _buffer.substr(0, index);
-	_buffer = _buffer.substr(index + 1);
+	_buffer = _buffer.substr(index + 2);
 	return (true);
 }
 
