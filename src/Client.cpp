@@ -7,7 +7,7 @@
 Client::Client(int const fd, const std::string& host) :
 	_fd(fd),
 	_host(host),
-	_isAuthorized(false)
+	_state(LOGIN)
 {
 	//_buffer.resize(INIT_BUFFER);
 	return ;
@@ -42,10 +42,10 @@ Client::~Client()
 void	Client::reply(std::string message) {
 	
 	std::string buffer;
-	buffer = getPrefix() + message + "\r\n";
-	std::cout << buffer; // Remove
+	buffer = message + "\r\n";
 	if (send(_fd, buffer.c_str(), buffer.size(), 0) < 0)
 		throw std::runtime_error("Error sending message");
+	logToServer(message);
 }
 
 void	Client::sendMessage(std::string message ) {
@@ -120,13 +120,19 @@ void	Client::welcome()
 {
 	if (_username.empty() || _realname.empty() || _nickname.empty())
 		return ;
-	reply(RPL_WELCOME(_nickname));
-	// Log to server
+	_state = ACCESS;
+	reply(RPL_WELCOME(_host, _nickname));
 }
 
 /*
 ** --------------------------------- MUTATORS ---------------------------------
 */
+
+
+void	Client::setState(int new_state)
+{
+	this->_state = new_state;
+}
 
 void	Client::setNick(const std::string& nick)
 {
@@ -162,9 +168,14 @@ void	Client::appendBuffer(std::string const & buf)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-int		Client::getFd()
+int			Client::getFd() const
 {
 	return (this->_fd);
+}
+
+int			Client::getState() const
+{
+	return (this->_state);
 }
 
 std::string	Client::getNick() const

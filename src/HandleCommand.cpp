@@ -3,13 +3,16 @@
 
 HandleCommand::HandleCommand(Server* server) : _server(server)
 {
-	_commands["/JOIN"] = new JoinCommand(_server);
-	_commands["/PRIVMSG"] = new PrivMsgCommand(_server);
-	_commands["/KICK"] = new KickCommand(_server);
-	_commands["/QUIT"] = new QuitCommand(_server);
-	_commands["/MODE"] = new ModeCommand(_server);
-	_commands["/NICK"] = new NickCommand(_server);
-	_commands["/USER"] = new UserCommand(_server);
+	_commands["JOIN"] = new JoinCommand(_server);
+	_commands["PRIVMSG"] = new PrivMsgCommand(_server);
+	_commands["KICK"] = new KickCommand(_server);
+	_commands["QUIT"] = new QuitCommand(_server);
+	_commands["MODE"] = new ModeCommand(_server);
+	_commands["NICK"] = new NickCommand(_server);
+	_commands["USER"] = new UserCommand(_server);
+	_commands["PASS"] = new PassCommand(_server);
+	_commands["PING"] = new PingCommand(_server);
+	_commands["PART"] = new PartCommand(_server);
 }
 
 HandleCommand::~HandleCommand()
@@ -31,6 +34,8 @@ HandleCommand::~HandleCommand()
 
 void	HandleCommand::call(std::string &message, Client* client)
 {
+	if (message.size() < 1)
+		return ;
 	std::string temp;
 	std::string cut = message.substr(0, message.find('\n'));
 	size_t				pos = 0;

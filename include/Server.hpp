@@ -45,7 +45,9 @@ class Server {
 												//	Return: Number of connections that returned data (i.e. return value of poll())
 		int	test();
 		bool	connectClient();				//Called when a connection is opened
-		void	addChannel(Channel * channel);
+		void	addChannel(Channel* channel);
+		void	popChannel(Channel* channel);
+		Channel*	getChannel(std::string chan_name);
 		void	disconnectClient(int fd);		//Remove a specific file descriptor (e.g. when KILL is called)
 		int		getConnections(t_conn& conn);	//Get connection status from queue of new connections (placed inside reference)
 												//	Return: Queued connections before calling
@@ -55,12 +57,13 @@ class Server {
 
 		void	clientMessage(int fd);
 		void	broadcast(int fd, std::string message);
+		// std::vector<std::string>	readMessage(int fd);
 		t_str	readMessage(int fd);
 
 
 		std::string						getPassword() const;
 		uint32_t						getPort() const;
-		Client*							getClient(std::string& username) const;
+		Client*							getClient(std::string& nickname) const;
 		t_clients						getClients() const;
 		
 		Channel*						getChannel(t_str name) const;

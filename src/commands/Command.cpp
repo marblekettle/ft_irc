@@ -1,69 +1,4 @@
 #include "Command.hpp"
-#include "Server.hpp"
-#include "Client.hpp"
-#include "utils.hpp"
-#include "responses.hpp"
-
-JoinCommand::JoinCommand(Server* server) : Command(server)
-{
-}
-
-JoinCommand::~JoinCommand()
-{
-}
-
-void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
-{ 
-	Channel* channel;
-	std::string prefix(client->getPrefix());
-	size_t	nb_of_args = arguments.size();
-
-	if (client->getState() < ACCESS)
-	{
-		client->reply(ERR_NOTREGISTERED(client->getHost()));
-		return ;
-	}
-	if (arguments[1].empty() || arguments[1][0] != '#')
-	{
-		client->reply(ERR_NEEDMOREPARAMS(client->getHost(), arguments[0]));
-		return ;
-	}
-	channel = _server->getChannel(arguments[1].substr(1));
-	std::stringstream ssNameList;
-	if (!channel)
-	{
-		ssNameList << "#" << client->getNick();
-		channel = new Channel(arguments[1].substr(1), client);
-		_server->addChannel(channel);
-		if (nb_of_args == 3)
-			channel->setPassword(arguments[2]);
-		client->reply(RPL_JOIN(prefix, arguments[1]));
-	}
-	else
-	{
-		std::vector<Client *>::iterator it;
-		if (channel->getPassword().size() > 0)
-		{
-			if (nb_of_args < 3 || arguments[2] != channel->getPassword())
-			{
-				client->reply(ERR_BADCHANNELKEY(client->getHost(), arguments[1].substr(1)));
-				return ;
-			}
-			channel->setPassword(arguments[2]);
-		}
-		channel->addClient(client);
-		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it)
-		{
-			if (channel->isAdmin(*it))
-				ssNameList << "#" << (*it)->getNick() << " ";
-			else
-				ssNameList << (*it)->getNick() << " ";
-		}
-		channel->broadCast(RPL_JOIN(prefix, arguments[1]));
-	}
-	client->reply(RPL_NAMREPLY(client->getHost(), client->getNick(), arguments[1], ssNameList.str()));
-	client->reply(RPL_ENDOFNAMES(client->getHost(), client->getNick(), arguments[1]));
-}
 
 PrivMsgCommand::PrivMsgCommand(Server* server) : Command(server) {}
 
@@ -183,18 +118,6 @@ void	QuitCommand::execute(std::vector<std::string>& arguments, Client* client)
 	return ;
 }
 
-ModeCommand::ModeCommand(Server* server) : Command(server) {}
-
-ModeCommand::~ModeCommand() {}
-
-void	ModeCommand::execute(std::vector<std::string>& arguments, Client* client)
-{
-	(void)client;
-	(void)arguments;
-	std::cout << "Call mode command" << std::endl;
-	return ;
-}
-
 NickCommand::NickCommand(Server* server) : Command(server) {}
 
 NickCommand::~NickCommand() {}
@@ -225,7 +148,6 @@ void	NickCommand::execute(std::vector<std::string>& arguments, Client* client)
 	reply_msg.append(arguments[1]);
 
 	client->reply(reply_msg);
-	logToServer(reply_msg);
 	if (client->getState() < REGISTERED)
 	{
 		client->welcome();
@@ -273,7 +195,7 @@ void	PassCommand::execute(std::vector<std::string>& arguments, Client* client)
 	}
 	if (arguments[1] != _server->getPassword())
 	{
-		_server->disconnectClient(client->getFd());
+		// _server->disconnectClient(client->getFd());
 		return ; // get disconected from server, no notification
 	}
 	client->setState(AUTHENTICATED);
