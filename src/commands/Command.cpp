@@ -113,7 +113,6 @@ QuitCommand::~QuitCommand() {}
 
 void	QuitCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
-	channel*	channel;
 	t_chan_iter	it;
 	t_str		message;
 
@@ -129,7 +128,7 @@ void	QuitCommand::execute(std::vector<std::string>& arguments, Client* client)
 	for (it = client->getActiveChannelBegin(); it != client->getActiveChannelEnd(); ++it)
 	{
 		(*it)->removeClient(client);
-		if (*it->getClientList().size() < 1)
+		if ((*it)->getClientList().size() < 1)
 			_server->popChannel(*it);
 		else
 			(*it)->broadCast(RPL_QUIT(client->getPrefix(), message));

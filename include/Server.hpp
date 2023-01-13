@@ -31,11 +31,11 @@ class Server {
 		t_dataq			_dataq;		//Queue of data
 		HandleCommand* 	_handleCommand;
 		t_clients		_clients;
+		t_channels		_channels;
 		bool			_sendready;
 		void			__queue(int fd, t_str data);	//Adds data to the queue
 		void			__togglepoll();
-		std::map<std::string, Channel *>	_channels;
-	
+
 	public:
 		Server(t_port port = 6667, t_str password = "");
 		~Server();
@@ -43,12 +43,15 @@ class Server {
 												//	Return: Socket successfully created or not
 		void	run();							//Check for all file descriptors if data is available or connection dropped
 												//	Return: Number of connections that returned data (i.e. return value of poll())
-		int	test();
+		// int	test();
 		bool	connectClient();				//Called when a connection is opened
 		void	addChannel(Channel* channel);
 		void	popChannel(Channel* channel);
+		void	clearAllChannels();
 		Channel*	getChannel(std::string chan_name);
+	
 		void	disconnectClient(int fd);		//Remove a specific file descriptor (e.g. when KILL is called)
+		void	disconnectAllClients();			//Remove all connected clients from the server
 		int		getConnections(t_conn& conn);	//Get connection status from queue of new connections (placed inside reference)
 												//	Return: Queued connections before calling
 		int		getQueuedData(t_datap& data);	//Get data from queue (placed inside reference)

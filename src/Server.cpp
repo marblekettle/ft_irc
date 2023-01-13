@@ -24,6 +24,8 @@ Server::Server(t_port port, t_str passwd):
 Server::~Server()
 {
 	delete _handleCommand;
+	disconnectAllClients();
+	clearAllChannels();
 }
 
 /*
@@ -69,6 +71,13 @@ void	Server::popChannel(Channel* channel) {
 
 	_channels.erase(channel->getName());
 	delete channel;
+}
+
+void	Server::clearAllChannels()
+{
+	for (t_chan_iter it = _channels.begin(); it != _channels.end(); ++it)
+		delete it->second;
+	_channels.clear();
 }
 
 void	Server::__queue(int fd, t_str data) {
@@ -249,6 +258,19 @@ void	Server::disconnectClient(int fd)
 		}
 	}
 	delete client;
+}
+
+void		Server::disconnectAllClients()
+{
+	for (t_fdv::iterator it = _fd.begin(); it != _fd.end(); it++)
+	{
+		_fd.erase(it);
+		close(it->fd);
+	}
+	_fd.clear();
+	for (t_clients::iterator it = _clients.begin(); it != _clients.end(); it++)
+		delete it->second;
+	_clients.clear();
 }
 
 /*
