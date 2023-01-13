@@ -35,9 +35,9 @@ void	ModeCommand::execute(std::vector<std::string>& arguments, Client* client)
 		channel = _server->getChannel(arguments[1].substr(1));
 		if (!channel)
 			return client->reply(ERR_NOSUCHCHANNEL(client->getHost(), arguments[1].substr(1)));
-		if (channel->inClientList(client))
+		if (!channel->inClientList(client))
 			return client->reply(ERR_NOTONCHANNEL(client->getHost(), channel->getName()));
-		if (arguments[2].size() != 2 || !strchr("iklo", arguments[2][1]) || !strchr("+-", arguments[2][1]))
+		if (arguments[2].size() != 2 || !strchr("iklo", arguments[2][1]) || !strchr("+-", arguments[2][0]))
 			return client->reply(ERR_UNKNOWNMODE(client->getHost(), arguments[2], arguments[1].substr(1)));
 		if (!channel->isAdmin(client))
 			return client->reply(ERR_CHANOPRIVSNEEDED(client->getHost(), channel->getName()));
@@ -84,7 +84,7 @@ bool		ModeCommand::chanKey(std::vector<std::string>& arguments, Client* client, 
 	if (sign == '-')
 	{
 		key = "";
-		if (key != channel->getPassword())
+		if (arguments[3] != channel->getPassword())
 		{
 			client->reply(ERR_PASSWDMISMATCH(client->getHost()));
 			return (false);

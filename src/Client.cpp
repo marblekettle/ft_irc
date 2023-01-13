@@ -113,6 +113,7 @@ bool	Client::readMessages(t_str& message) {
 		return (false);
 	message = _buffer.substr(0, index);
 	_buffer = _buffer.substr(index + 2);
+	std::cerr << "DEBUG--> " << message << std::endl;
 	return (true);
 }
 
@@ -205,7 +206,7 @@ std::string	Client::getBuffer() const
 
 std::string	Client::getPrefix()
 {
-	return (_nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host));
+	return (":" + _nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host));
 }
 
 /* ************************************************************************** */

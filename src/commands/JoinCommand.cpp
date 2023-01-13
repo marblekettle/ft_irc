@@ -62,6 +62,8 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 		}
 		channel->broadCast(RPL_JOIN(prefix, arguments[1]));
 	}
-	client->reply(RPL_NAMREPLY(client->getHost(), client->getNick(), arguments[1], ssNameList.str()));
-	client->reply(RPL_ENDOFNAMES(client->getHost(), client->getNick(), arguments[1]));
+	channel->broadCast(RPL_NAMREPLY(client->getHost(), client->getNick(), arguments[1], ssNameList.str()));
+	channel->broadCast(RPL_ENDOFNAMES(client->getHost(), client->getNick(), arguments[1]));
+	// client->reply(RPL_NAMREPLY(client->getHost(), client->getNick(), arguments[1], ssNameList.str()));
+	// client->reply(RPL_ENDOFNAMES(client->getHost(), client->getNick(), arguments[1]));
 }
