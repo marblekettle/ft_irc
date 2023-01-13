@@ -10,6 +10,7 @@
 #define RPL_KICK(prefix, channel, nick, message) prefix + " PART " + channel + " " + nick + " " + message
 #define	RPL_PRIVMSG(prefix, recipient, message)				prefix + " PRIVMSG " + recipient + " " + message
 #define RPL_PING(source, nick)		source + " PONG " + nick
+#define RPL_QUIT(prefix, message)	prefix + " QUIT " + message
 /* Error messages */
 
 

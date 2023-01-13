@@ -100,6 +100,7 @@ void	KickCommand::execute(std::vector<std::string>& arguments, Client* client)
 		return ;
 	}
 	channel->removeClient(client_kick);
+	client_kick->popChannel(channel);
 	std::string msg;
 	msg = (arguments.size() > 3) ? arguments[3] : "";
 	channel->broadCast(RPL_KICK(client->getPrefix(), arguments[1], arguments[2], msg), client);
@@ -112,9 +113,29 @@ QuitCommand::~QuitCommand() {}
 
 void	QuitCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
-	(void)client;
-	(void)arguments;
-	std::cout << "Call Quit command" << std::endl;
+	channel*	channel;
+	t_chan_iter	it;
+	t_str		message;
+
+	if (client->getState() < ACCESS)
+	{
+		client->reply(ERR_NOTREGISTERED(client->getHost()));
+		return ;
+	}
+	if (arguments.size() > 1)
+		message = arguments[1];
+	else
+		message = "";
+	for (it = client->getActiveChannelBegin(); it != client->getActiveChannelEnd(); ++it)
+	{
+		(*it)->removeClient(client);
+		if (*it->getClientList().size() < 1)
+			_server->popChannel(*it);
+		else
+			(*it)->broadCast(RPL_QUIT(client->getPrefix(), message));
+	}
+	client->clearActiveChannels();
+	_server->disconnectClient(client->getFd());
 	return ;
 }
 
@@ -248,6 +269,7 @@ void	PartCommand::execute(std::vector<std::string>& arguments, Client* client)
 	msg = (arguments.size() > 2) ? arguments[2] : "";
 
 	channel->removeClient(client);
+	client->popChannel(channel);
 	channel->broadCast(RPL_PART(client->getPrefix(), arguments[1], msg));
 	if (channel->getClientList().size() < 1)
 		_server->popChannel(channel);

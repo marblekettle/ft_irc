@@ -20,6 +20,7 @@ Client::Client(int const fd, const std::string& host) :
 Client::~Client()
 {
 	clearBuffer();
+	clearActiveChannels();
 }
 
 /*
@@ -125,6 +126,27 @@ void	Client::welcome()
 	reply(RPL_WELCOME(_host, _nickname));
 }
 
+void	Client::clearActiveChannels()
+{
+	this->_activeChannels.clear();
+}
+
+void	Client::addChannel(Channel* channel)
+{
+	_activeChannels.push_back(channel);
+}
+
+void	Client::popChannel(Channel* channel)
+{
+	t_chan_iter it;
+
+	/* remove from channel list */
+	it = std::find(_activeChannels.begin(), _activeChannels.end(), channel);
+	if (it == _activeChannels.end())
+		return ;
+	std::remove(_activeChannels.begin(), _activeChannels.end(), channel);
+}
+
 /*
 ** --------------------------------- MUTATORS ---------------------------------
 */
@@ -207,6 +229,15 @@ std::string	Client::getBuffer() const
 std::string	Client::getPrefix()
 {
 	return (":" + _nickname + (_username.empty() ? "" : "!" + _username) + (_host.empty() ? "" : "@" + _host));
+}
+
+t_chan_iter	Client::getActiveChannelBegin()
+{
+	return (_activeChannels.begin());
+}
+t_chan_iter	Client::getActiveChannelEnd()
+{
+	return (_activeChannels.end());
 }
 
 /* ************************************************************************** */

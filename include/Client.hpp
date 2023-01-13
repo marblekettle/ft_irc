@@ -29,6 +29,8 @@ enum state
 
 /* TODO add vector of current channels pointers where the client is in */
 
+typedef std::vector<Channel*>::iterator t_chan_iter; //Iterator for a vector with channel pointers
+
 class Client
 {
 	private:
@@ -81,6 +83,12 @@ class Client
 		void				setBuffer(const std::string& user);
 		void				appendBuffer(const std::string& user);
 		void				clearBuffer();
+
+		void				addChannel(Channel* channel);
+		void				popChannel(Channel* channel);
+		void				clearActiveChannels();
+		t_chan_iter			getActiveChannelBegin();
+		t_chan_iter			getActiveChannelEnd();
 
 		void				welcome();
 		void				reply(std::string message);
