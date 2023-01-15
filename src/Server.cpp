@@ -75,7 +75,7 @@ void	Server::popChannel(Channel* channel) {
 
 void	Server::clearAllChannels()
 {
-	for (t_chan_iter it = _channels.begin(); it != _channels.end(); ++it)
+	for (std::map<std::string, Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 		delete it->second;
 	_channels.clear();
 }
