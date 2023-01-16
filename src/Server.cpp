@@ -30,6 +30,10 @@ Server::~Server()
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void	Server::stop() {
+	_ready = false;
+}
+
 bool	Server::connectClient() 
 {
 	int	fd;
@@ -107,6 +111,7 @@ int		Server::openSocket()
 	// char hostname[NI_MAXHOST];
 	// if (getnameinfo((struct sockaddr *) &serv_addr, sizeof(serv_addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
 	// 	throw std::runtime_error("Error");
+	_ready = true;
 	return (socket_fd);
 }
 
@@ -114,7 +119,7 @@ void		Server::run()
 {
 	t_fd	server_fd = {_socket, POLLIN, 0};
 	_fd.push_back(server_fd);
-	while (1) 
+	while (_ready) 
 	{
 		// __togglepoll();
 		t_fdv::iterator it_end = _fd.end();
@@ -147,10 +152,11 @@ void		Server::run()
 				}
 			}
 		}
-		while (_dataq.size() > 0) {
-			//std::cerr << _dataq.front().second << std::endl;
+		if (_dataq.size() > 0) {
+			std::cerr << _dataq.front().second << std::endl;
 			int clfd = _dataq.front().first;
 			Client*	cl = _clients[clfd];
+//			std::cerr << cl << std::endl;
 			if (cl)
 				_handleCommand->call(_dataq.front().second, cl);
 			_dataq.pop();
