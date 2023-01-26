@@ -232,7 +232,7 @@ void	PingCommand::execute(std::vector<std::string>& arguments, Client* client)
 		client->reply(ERR_NOORIGIN(client->getHost()));
 		return ;
 	}
-	client->reply(RPL_PING(client->getHost(), client->getNick()));
+	client->reply("PONG " + arguments[1]);
 }
 
 PartCommand::PartCommand(Server* server) : Command(server) {}
