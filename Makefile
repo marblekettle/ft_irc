@@ -1,5 +1,4 @@
 NAME		=	ircserv
-
 SRC_DIR		=	src/
 HEADER_DIR	=	include/
 OBJ_DIR		=	obj/
@@ -9,16 +8,20 @@ BIN			=	$(BIN_DIR)$(NAME)
 SRC			=	Server.cpp \
 				Client.cpp \
 				Channel.cpp \
-				Command.cpp \
 				main.cpp \
 				HandleCommand.cpp \
-				utils.cpp
+				utils.cpp	\
+				commands/Command.cpp \
+				commands/ModeCommand.cpp \
+				commands/JoinCommand.cpp
 
 HEADERS		=	Server.hpp \
 				Client.hpp \
 				Channel.hpp \
 				Command.hpp \
 				HandleCommand.hpp \
+				responses.hpp	\
+				utils.hpp	\
 
 OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
 

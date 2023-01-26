@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "utils.hpp"
 
 int	main(int ac, char** av) {
 	if (ac == 3) 

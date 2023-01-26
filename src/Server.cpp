@@ -24,6 +24,8 @@ Server::Server(t_port port, t_str passwd):
 Server::~Server()
 {
 	delete _handleCommand;
+	disconnectAllClients();
+	clearAllChannels();
 }
 
 /*
@@ -65,6 +67,19 @@ void	Server::addChannel(Channel * channel) {
 	std::cout << "Channel: '" << channel->getName() << "' added" << std::endl;
 }
 
+void	Server::popChannel(Channel* channel) {
+
+	_channels.erase(channel->getName());
+	delete channel;
+}
+
+void	Server::clearAllChannels()
+{
+	for (std::map<std::string, Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+		delete it->second;
+	_channels.clear();
+}
+
 void	Server::__queue(int fd, t_str data) {
 	t_datap	datap;
 	datap.first = fd;
@@ -88,13 +103,19 @@ int		Server::openSocket()
 	std::memset(&serv_addr, 0, sizeof(t_addrin));
 	serv_addr.sin_family = AF_INET;					//Internet protocol
 	serv_addr.sin_port = htons(_port);
-	serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
-	// serv_addr.sin_addr.s_addr = INADDR_ANY;
+	//serv_addr.sin_addr.s_addr = htonl(0x7F000001);	//Localhost/127.0.0.1
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+
 	if (bind(socket_fd, reinterpret_cast<t_addr*>(&serv_addr), sizeof(t_addr)))
 		throw std::runtime_error("Error");
 	
 	if (listen(socket_fd, 10) < 0)						//Set listening FD to listen
 		throw std::runtime_error("Error");
+
+	/* Tried to take the adress of the server but i got 0.0.0.0 */
+	// char hostname[NI_MAXHOST];
+	// if (getnameinfo((struct sockaddr *) &serv_addr, sizeof(serv_addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
+	// 	throw std::runtime_error("Error");
 	return (socket_fd);
 }
 
@@ -104,9 +125,9 @@ void		Server::run()
 	_fd.push_back(server_fd);
 	while (1) 
 	{
-		__togglepoll();
+		// __togglepoll();
 		t_fdv::iterator it_end = _fd.end();
-		if (poll(_fd.begin().base(), _fd.size(), 10) < 0)
+		if (poll(_fd.begin().base(), _fd.size(), 1000) < 0)
 			throw std::runtime_error("Error");
 		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
 			if (it->revents == 0)
@@ -114,12 +135,12 @@ void		Server::run()
 			if (it->revents & (POLLHUP | POLLNVAL | POLLERR)) {
 				std::cout << "FD " << it->fd << " disconnected!" << std::endl;
 				disconnectClient(it->fd);
-				break ;
+				continue ;
 			}
 			if (it->revents & POLLIN) {
 				if (it->fd == _socket) {
 					connectClient();
-					break ;	//	Could be continue instead?
+					continue ;	//	Could be continue instead?
 				}
 				clientMessage(it->fd); 
 			}
@@ -131,60 +152,96 @@ void		Server::run()
 					if (static_cast<unsigned int>(sent) != tosend.size())
 						std::cerr << "Error: Whole message not sent" << std::endl;
 				} else {
-					std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
+					// std::cerr << "Error: Nothing to send to " << it->fd << std::endl;
 				}
 			}
+		}
+		while (_dataq.size() > 0) {
+			//std::cerr << _dataq.front().second << std::endl;
+			int clfd = _dataq.front().first;
+			Client*	cl = _clients[clfd];
+			if (cl)
+				_handleCommand->call(_dataq.front().second, cl);
+			_dataq.pop();
 		}
 	}	
 }
 
-
-std::string		Server::readMessage(int fd)
-{
-	t_str	message;
-	char	buf[100];
-
-	bzero(buf, 100);
-	while (!std::strstr(buf, "\n"))
-	{
-		if (recv(fd, buf, 100, 0) < 0)
-		{
-			if (errno != EWOULDBLOCK)
-				throw (std::runtime_error("Error with reading buf from client"));
-		}
-		message.append(buf);
-	}
-	// __queue(fd, message);
-	std::cout << "Client #" << fd << " :" << message ;
-	return (message);
-}
+/*
+	size_t index = _buffer.find('\n');
+	if (index == std::string::npos)
+		return (false);
+	message = _buffer.substr(0, index);
+	_buffer = _buffer.substr(index + 1);
+*/
 
 void	Server::clientMessage(int fd)
 {
 	Client *client = _clients.at(fd);
-	std::string message;
-	message = readMessage(fd);
-	_handleCommand->call(message, client);
+	t_str message;
+	while (client->readMessages(message))
+		__queue(fd, message);
 	// broadcast(fd, readMessage(fd));
 }
 
+// std::vector<std::string>		Server::readMessage(int fd)
+// {
+// 	t_str	message;
+// 	char	buf[100];
 
-void	Server::broadcast(int fd, std::string message)
-{
-	std::ostringstream ss;
+// 	bzero(buf, 100);
+// 	while (!std::strstr(buf, "\n"))
+// 	{
+// 		if (recv(fd, buf, 100, 0) < 0)
+// 		{
+// 			if (errno != EWOULDBLOCK)
+// 				throw (std::runtime_error("Error with reading buf from client"));
+// 		}
+// 		message.append(buf);
+// 	}
+ 
+// 	std::vector<std::string> tokens;
+//     std::stringstream ss(message);
+//     std::string token;
 
-	ss << "From client #" << fd << " : "<< message;
+//     while (std::getline(ss, token, '\n')) {
+//         tokens.push_back(token);
+// 		std::cout << "Client #" << fd << " :" << token ;
+// 		__queue(fd, token);
+//     }
+//     return (tokens);
+// }
 
-	std::map<int, Client*>::iterator it;
+// void	Server::clientMessage(int fd)
+// {
+// 	Client *client = _clients.at(fd);
+// 	std::vector<std::string> messages;
+// 	std::vector<std::string>::iterator it;
+// 	messages = readMessage(fd);
 
-	for (it = (_clients.begin()); it != _clients.end(); ++it)
-	{
-		if (it->first == fd || it->first == _socket)
-			continue;
-//		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
-		it->second->queueResponse(ss.str());
-	}
-}
+// 	for (it = messages.begin(); it != messages.end(); ++it) {
+// 		std::cout << "first cmd = " << *it << std::endl;
+// 		_handleCommand->call(*it, client);
+// 	}
+// }
+
+
+// void	Server::broadcast(int fd, std::string message)
+// {
+// 	std::ostringstream ss;
+
+// 	ss << "From client #" << fd << " : "<< message;
+
+// 	std::map<int, Client*>::iterator it;
+
+// 	for (it = (_clients.begin()); it != _clients.end(); ++it)
+// 	{
+// 		if (it->first == fd || it->first == _socket)
+// 			continue;
+// //		send(it->first, ss.str().c_str(), ss.str().size() + 1, 0);
+// 		it->second->queueResponse(ss.str());
+// 	}
+// }
 
 void	Server::disconnectClient(int fd) 
 {
@@ -201,6 +258,19 @@ void	Server::disconnectClient(int fd)
 		}
 	}
 	delete client;
+}
+
+void		Server::disconnectAllClients()
+{
+	for (t_fdv::iterator it = _fd.begin(); it != _fd.end(); it++)
+	{
+		_fd.erase(it);
+		close(it->fd);
+	}
+	_fd.clear();
+	for (t_clients::iterator it = _clients.begin(); it != _clients.end(); it++)
+		delete it->second;
+	_clients.clear();
 }
 
 /*
@@ -246,16 +316,25 @@ Client*		Server::getClient(std::string& nickname) const
 
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		if (it->second->getNick() == StringToUpper(nickname))
+		if (it->second->getNick() == nickname)
 			return (it->second);
 	}
-	
 	return (nullptr);
 }
 
 t_clients	Server::getClients() const
 {
 	return (_clients);
+}
+
+Channel*	Server::getChannel(std::string chan_name)
+{
+	std::map<std::string, Channel *>::iterator it;
+
+	it = _channels.find(chan_name);
+	if (it != _channels.end())
+		return (it->second);
+	return (nullptr);
 }
 
 // int		Server::getConnections(t_conn& conn) {
@@ -305,23 +384,9 @@ int	Server::test() {
 }
 */
 
-//	____Experimental____
-
 void	Server::__togglepoll() {
 	for (unsigned int i = 1; i < _fd.size(); i++) {
-		if (_sendready) {
-			_fd[i].events = POLLIN;
-		} else {
-			Client*	cl = _clients[_fd[i].fd];
-			if (cl->nResponses() > 0) {
-				_fd[i].events = POLLOUT;
-			} else {
-				_fd[i].events = POLLIN;
-			}
-		}
+		_fd[i].events = _sendready ? POLLOUT : POLLIN;
 	}
-//	std::cerr << _sendready << std::endl;
-	_sendready = (~_sendready) & 1;
+	_sendready = _sendready ? false : true;
 }
-
-//	____________________
