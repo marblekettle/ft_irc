@@ -1,5 +1,19 @@
 #include "utils.hpp"
 
+bool	symbolBlackList(std::string	str)
+{
+	std::string	s = "@,";
+
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		for (size_t j = 0; j < s.length(); j++)
+		{
+			if (str[i] == s[j])
+				return (false);
+		}
+	}
+	return (true);
+}
 
 std::string	StringToUpper(std::string toConvert)
 {

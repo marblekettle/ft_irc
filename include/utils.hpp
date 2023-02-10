@@ -3,6 +3,7 @@
 
 # include <iostream>
 
+bool			symbolBlackList(std::string	str);
 std::string 	StringToUpper(std::string toConvert);
 void			logToServer(std::string &message);
 

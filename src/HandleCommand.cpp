@@ -51,6 +51,8 @@ void	HandleCommand::call(std::string &message, Client* client)
 		} else
 			pos2 = cut.find(' ', pos);
 		t_str split = cut.substr(pos, pos2 - pos);
+		if (!symbolBlackList(split))
+			return ;
 		if (split.size() > 0)
 			v.push_back(split);
 		if (pos2 >= cut.size())
