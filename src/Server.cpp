@@ -23,9 +23,9 @@ Server::Server(t_port port, t_str passwd):
 
 Server::~Server()
 {
-	delete _handleCommand;
-	disconnectAllClients();
-	clearAllChannels();
+//	delete _handleCommand;
+//	disconnectAllClients();
+//	clearAllChannels();
 }
 
 /*
@@ -116,14 +116,16 @@ int		Server::openSocket()
 	// char hostname[NI_MAXHOST];
 	// if (getnameinfo((struct sockaddr *) &serv_addr, sizeof(serv_addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
 	// 	throw std::runtime_error("Error");
+	_ready = true;
 	return (socket_fd);
 }
 
 void		Server::run() 
 {
+	int	foo = 0;
 	t_fd	server_fd = {_socket, POLLIN, 0};
 	_fd.push_back(server_fd);
-	while (1) 
+	while (_ready) 
 	{
 		// __togglepoll();
 		t_fdv::iterator it_end = _fd.end();
@@ -164,7 +166,14 @@ void		Server::run()
 				_handleCommand->call(_dataq.front().second, cl);
 			_dataq.pop();
 		}
-	}	
+		foo++;
+		if (foo == 5)
+			stop();
+	}
+}
+
+void	Server::stop() {
+	_ready = false;
 }
 
 /*
