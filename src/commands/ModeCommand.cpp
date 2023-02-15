@@ -58,10 +58,8 @@ void	ModeCommand::execute(std::vector<std::string>& arguments, Client* client)
 
 bool		ModeCommand::chanInvite(std::vector<std::string>& arguments, Client* client, Channel* channel)
 {
-	(void)arguments;
-	(void)client;
 	(void)channel;
-	std::cout << "hello from invite" << std::endl;
+	client->reply(ERR_UNKNOWNMODE(client->getHost(), arguments[2], arguments[1].substr(1)));
 	return (false);
 }
 
@@ -81,7 +79,7 @@ bool		ModeCommand::chanKey(std::vector<std::string>& arguments, Client* client, 
 		channel->setPassword(key);
 		return (true);
 	}
-	if (sign == '-')
+	else if (sign == '-')
 	{
 		key = "";
 		if (arguments[3] != channel->getPassword())
@@ -92,6 +90,7 @@ bool		ModeCommand::chanKey(std::vector<std::string>& arguments, Client* client, 
 		channel->setPassword(key);
 		return (true);
 	}
+	client->reply(ERR_UNKNOWNMODE(client->getHost(), arguments[2], arguments[1].substr(1)));
 	return (false);
 }
 
@@ -103,16 +102,15 @@ bool		ModeCommand::chanLimit(std::vector<std::string>& arguments, Client* client
 	(void)client;
 	char sign = arguments[2][0];
 	limit = arguments[3];
-	/* Could not find the error message if limit arg is not valid */
-	// if (limit.find_first_not_of("0123456789") != std::string::npos)
-	// {
-	// 	client->reply()
-	// 	return (false);
-	// }
 	if (sign == '+')
 		channel->setLimit(atoi(limit.c_str()));
-	if (sign == '-')
+	else if (sign == '-')
 		channel->setLimit(-1);
+	else {
+		client->reply(ERR_UNKNOWNMODE(client->getHost(), arguments[2], arguments[1].substr(1)));
+		return (false);
+	}
+
 	return (true);
 }
 

@@ -28,11 +28,11 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 	std::stringstream ssNameList;
 	if (!channel)
 	{
-		ssNameList << "#" << client->getNick();
+		ssNameList << "@" << client->getNick();
 		channel = new Channel(arguments[1].substr(1), client);
 		_server->addChannel(channel);
 		client->addChannel(channel);
-		if (nb_of_args == 3)
+		if (nb_of_args >= 3)
 			channel->setPassword(arguments[2]);
 		client->reply(RPL_JOIN(prefix, arguments[1]));
 	}
@@ -58,7 +58,7 @@ void	JoinCommand::execute(std::vector<std::string>& arguments, Client* client)
 		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it)
 		{
 			if (channel->isAdmin(*it))
-				ssNameList << "#" << (*it)->getNick() << " ";
+				ssNameList << "@" << (*it)->getNick() << " ";
 			else
 				ssNameList << (*it)->getNick() << " ";
 		}
