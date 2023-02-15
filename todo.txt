@@ -1,0 +1,3 @@
+mode +i in usermode
+kick user from client
+after disconnecting client name in use

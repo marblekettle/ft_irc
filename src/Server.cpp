@@ -23,9 +23,9 @@ Server::Server(t_port port, t_str passwd):
 
 Server::~Server()
 {
-//	delete _handleCommand;
-//	disconnectAllClients();
-//	clearAllChannels();
+	disconnectAllClients();
+	clearAllChannels();
+	delete _handleCommand;
 }
 
 /*
@@ -122,15 +122,14 @@ int		Server::openSocket()
 
 void		Server::run() 
 {
-	int	foo = 0;
 	t_fd	server_fd = {_socket, POLLIN, 0};
 	_fd.push_back(server_fd);
 	while (_ready) 
 	{
-		// __togglepoll();
+		__togglepoll();
 		t_fdv::iterator it_end = _fd.end();
 		if (poll(_fd.begin().base(), _fd.size(), 1000) < 0)
-			throw std::runtime_error("Error");
+			throw std::runtime_error("Poll Error");
 		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
 			if (it->revents == 0)
 				continue;
@@ -166,9 +165,6 @@ void		Server::run()
 				_handleCommand->call(_dataq.front().second, cl);
 			_dataq.pop();
 		}
-		foo++;
-		if (foo == 5)
-			stop();
 	}
 }
 
@@ -255,31 +251,50 @@ void	Server::clientMessage(int fd)
 void	Server::disconnectClient(int fd) 
 {
 	Client* client = _clients.at(fd);
+
+	std::map<std::string, Channel *>::const_iterator iter;
+	for (iter = _channels.cbegin(); iter != _channels.cend() ;)
+	{
+		iter->second->removeClient(client);
+		if (iter->second->getClientList().size() < 1) {
+			delete iter->second;
+			_channels.erase(iter++);
+		}
+		else
+		{
+			iter->second->broadCast(RPL_QUIT(client->getPrefix(), "DISCONNECTED"));
+			++iter;
+		}
+	}
+
 	_clients.erase(fd);
-	t_fdv::iterator it;
-	for (it = _fd.begin(); it != _fd.end(); it++)
+	t_fdv::const_iterator it;
+	for (it = _fd.cbegin(); it != _fd.cend() ;)
 	{
 		if (it->fd == fd)
 		{
-			_fd.erase(it);
+			_fd.erase(it++);
 			close(fd);
 			break ;
 		}
+		else
+			++it;
 	}
 	delete client;
 }
 
 void		Server::disconnectAllClients()
 {
-	for (t_fdv::iterator it = _fd.begin(); it != _fd.end(); it++)
-	{
-		_fd.erase(it);
+	for (t_clients::iterator it = _clients.begin(); it != _clients.end(); it++) {
+		it->second->reply(RPL_QUIT(it->second->getHost(), ":SERVER DISCONNECTING"));
+		delete it->second;
+	}
+	_clients.clear();
+
+	for (t_fdv::iterator it = _fd.begin(); it != _fd.end(); it++) {
 		close(it->fd);
 	}
 	_fd.clear();
-	for (t_clients::iterator it = _clients.begin(); it != _clients.end(); it++)
-		delete it->second;
-	_clients.clear();
 }
 
 /*

@@ -42,7 +42,7 @@ class Server {
 												//	Return: Socket successfully created or not
 		void	run();							//Check for all file descriptors if data is available or connection dropped
 												//	Return: Number of connections that returned data (i.e. return value of poll())
-		// int	test();
+
 		void	stop();
 		bool	connectClient();				//Called when a connection is opened
 		void	addChannel(Channel* channel);
