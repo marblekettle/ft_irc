@@ -52,16 +52,16 @@ Channel::~Channel()
 void	Channel::removeClient(Client* client)
 {
 	std::vector<Client *>::iterator it;
-	/* remove from client list */
+	/* erase from client list */
 	it = std::find(_clientList.begin(), _clientList.end(), client);
 	if (it == _clientList.end())
 		return ;
-	std::remove(_clientList.begin(), _clientList.end(), client);
+	_clientList.erase(it);
 	/* remove from admin list */
 	it = std::find(_admins.begin(), _admins.end(), client);
 	if (it == _admins.end())
 		return ;
-	std::remove(_admins.begin(), _admins.end(), client);
+	_admins.erase(it);
 }
 
 void	Channel::removeAdmin(Client* admin)
@@ -72,7 +72,7 @@ void	Channel::removeAdmin(Client* admin)
 	it = std::find(_admins.begin(), _admins.end(), admin);
 	if (it == _admins.end())
 		return ;
-	std::remove(_admins.begin(), _admins.end(), admin);
+	_admins.erase(it);
 }
 
 void	Channel::broadCast(std::string message, Client *sender)

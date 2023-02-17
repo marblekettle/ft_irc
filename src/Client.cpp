@@ -144,7 +144,7 @@ void	Client::popChannel(Channel* channel)
 	it = std::find(_activeChannels.begin(), _activeChannels.end(), channel);
 	if (it == _activeChannels.end())
 		return ;
-	std::remove(_activeChannels.begin(), _activeChannels.end(), channel);
+	_activeChannels.erase(it);
 }
 
 /*

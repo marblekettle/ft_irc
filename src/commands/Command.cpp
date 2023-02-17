@@ -242,7 +242,6 @@ PartCommand::~PartCommand() {}
 void	PartCommand::execute(std::vector<std::string>& arguments, Client* client)
 {
 	Channel* channel;
-
 	if (client->getState() < ACCESS)
 	{
 		client->reply(ERR_NOTREGISTERED(client->getHost()));
@@ -267,9 +266,9 @@ void	PartCommand::execute(std::vector<std::string>& arguments, Client* client)
 	std::string msg;
 	msg = (arguments.size() > 2) ? arguments[2] : "";
 
+	channel->broadCast(RPL_PART(client->getPrefix(), arguments[1], msg));
 	channel->removeClient(client);
 	client->popChannel(channel);
-	channel->broadCast(RPL_PART(client->getPrefix(), arguments[1], msg));
 	if (channel->getClientList().size() < 1)
 		_server->popChannel(channel);
 }

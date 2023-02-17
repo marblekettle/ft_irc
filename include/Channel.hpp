@@ -35,8 +35,6 @@ class Channel
 		void					addAdmin(Client* admin);
 		void					setPassword(std::string &password);
 		void					setLimit(int const limit);
-
-
 };
 
 // std::ostream &			operator<<( std::ostream & o, Channel const & i );
