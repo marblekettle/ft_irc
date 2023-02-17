@@ -15,7 +15,7 @@
 
 
 #define RPL_NAMREPLY(source, nick, channel, namelist)	":" + source + " 353 " + nick + " = " + channel + " :" + namelist
-#define RPL_ENDOFNAMES(source, nick, channel)			":" + source + " 366 " + nick + " " + channel + " :End of NAMES list"
+#define RPL_ENDOFNAMES(source, nick, channel)			":" + source + " 366 " + nick + " " + channel + " :End of /NAMES list"
 #define ERR_NOSUCHNICK(source, nick)		":" + source + " 401 " + nick + " :No such nick/channel"
 #define ERR_NOSUCHCHANNEL(source, channel)	":" + source + " 403 " + channel + " :No such channel"
 #define ERR_CANNOTSENDTOCHAN(source, nick, channel)	":" + source + " 404 " + nick + channel + " :Cannot send to channel"

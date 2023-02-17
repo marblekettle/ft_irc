@@ -116,6 +116,7 @@ int		Server::openSocket()
 	// char hostname[NI_MAXHOST];
 	// if (getnameinfo((struct sockaddr *) &serv_addr, sizeof(serv_addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
 	// 	throw std::runtime_error("Error");
+	_ready = true;
 	return (socket_fd);
 }
 
@@ -123,12 +124,12 @@ void		Server::run()
 {
 	t_fd	server_fd = {_socket, POLLIN, 0};
 	_fd.push_back(server_fd);
-	while (1) 
+	while (_ready) 
 	{
-		// __togglepoll();
+		__togglepoll();
 		t_fdv::iterator it_end = _fd.end();
 		if (poll(_fd.begin().base(), _fd.size(), 1000) < 0)
-			throw std::runtime_error("Error");
+			throw std::runtime_error("Poll Error");
 		for (t_fdv::iterator it = _fd.begin(); it != it_end; it++) {
 			if (it->revents == 0)
 				continue;
@@ -164,7 +165,11 @@ void		Server::run()
 				_handleCommand->call(_dataq.front().second, cl);
 			_dataq.pop();
 		}
-	}	
+	}
+}
+
+void	Server::stop() {
+	_ready = false;
 }
 
 /*
