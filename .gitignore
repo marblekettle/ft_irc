@@ -1,3 +1,8 @@
+.vscode
+.gitignore
 .DS_Store
-ircserv
+.idea/
+bin/
+obj/
 *.o
+errlog

@@ -1,8 +1,16 @@
 #include "Server.hpp"
-#include <errno.h>
+#include "utils.hpp"
 
-int	main(int ac, char** av) {
-	if (ac == 3) {
+Server*	g_server = NULL;
+
+void	sig_stop(int code) {
+	if (code == SIGINT && g_server)
+		g_server->stop();
+}
+
+int		main(int ac, char** av) {
+	if (ac == 3) 
+	{
 		t_str	portstr(av[1]);
 		t_str	passwd(av[2]);
 		if (portstr.find_first_not_of("123467890") != std::string::npos) {
@@ -12,14 +20,15 @@ int	main(int ac, char** av) {
 		t_port	port = static_cast<t_port>(std::stoi(portstr));
 		try {
 			Server	server(port, passwd);
-			while (1) {
-				if (server.pollClients() < 0)
-					throw (Server::connectionError());
-			}
+			g_server = &server;
+			signal(SIGINT, sig_stop);
+			server.run();
 		} catch (std::exception &e) {
 			std::cerr << e.what() << std::endl;
 		}
-	} else {
+	} 
+	else 
+	{
 		std::cerr << "Incorrect arguments" << std::endl;
 	}
 	std::cerr << strerror(errno) << std::endl;
