@@ -28,7 +28,7 @@ OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
 INCL_DIRS	=	$(HEADER_DIR)
 INCLUDES	=	$(addprefix -I, $(INCL_DIRS))
 
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -pedantic # -g -fsanitize=address
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -pedantic
 CC			=	c++
 
 ifeq ("$(VERBOSE)","1")

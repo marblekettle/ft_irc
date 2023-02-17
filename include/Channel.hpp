@@ -37,6 +37,4 @@ class Channel
 		void					setLimit(int const limit);
 };
 
-// std::ostream &			operator<<( std::ostream & o, Channel const & i );
-
 #endif /* ********************************************************* CHANNEL_H */

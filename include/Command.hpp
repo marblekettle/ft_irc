@@ -21,7 +21,6 @@ class	Command
 		explicit		Command(Server *server) : _server(server) {};
 		virtual			~Command() {};
 		virtual void	execute(std::vector<std::string>& arguments, Client* client) = 0;
-		// void			addToQueue( std::queue<Command *> & queue );
 
 
 };

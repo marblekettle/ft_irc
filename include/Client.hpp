@@ -44,12 +44,7 @@ class Client
 		std::queue<t_str>		_commandQueue;
 		int						_state;
 		std::vector<Channel *>	_activeChannels;
-
-//	____Experimental____
-
 		std::queue<t_str>		_responseQueue;
-
-//	____________________
 
 		Client();
 
@@ -57,15 +52,10 @@ class Client
 
 		Client(int const fd, const std::string& host);
 		~Client();
-
-//	____Experimental____
-
 		void				queueResponse(const t_str& message);
 		int					nResponses();
 		t_str				popResponse();
 		bool				readMessages(t_str& message);
-
-//	____________________
 
 		int					getFd()	const;
 		int					getState() const;
@@ -93,7 +83,6 @@ class Client
 		void				welcome();
 		void				reply(std::string message);
 		void				sendMessage(std::string message);
-	//	Command *			getNextCommand();
 		void				addCommandToQueue(const t_str& string);
 		bool				popCommand(t_str& out);
 };

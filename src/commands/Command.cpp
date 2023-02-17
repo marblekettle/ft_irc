@@ -215,7 +215,6 @@ void	PassCommand::execute(std::vector<std::string>& arguments, Client* client)
 	}
 	if (arguments[1] != _server->getPassword())
 	{
-		// _server->disconnectClient(client->getFd());
 		return ; // get disconected from server, no notification
 	}
 	client->setState(AUTHENTICATED);

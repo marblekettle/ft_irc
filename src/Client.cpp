@@ -9,7 +9,6 @@ Client::Client(int const fd, const std::string& host) :
 	_host(host),
 	_state(LOGIN)
 {
-	//_buffer.resize(INIT_BUFFER);
 	return ;
 }
 
@@ -22,18 +21,6 @@ Client::~Client()
 	clearBuffer();
 	clearActiveChannels();
 }
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-
-// std::ostream &			operator+( std::ostream & o, Client const & i )
-// {
-// 	//o << "Value = " << i.getValue();
-// 	return o;
-// }
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -56,15 +43,6 @@ void	Client::sendMessage(std::string message ) {
 	_commandQueue.pop();
 }
 
-/*
-Command *	Client::getNextCommand( ) {
-
-	if (_commandQueue.empty())
-		return NULL;
-	return _commandQueue.front(); // TODO pop cmd only after success!? (ACK)
-}
-*/
-
 void	Client::addCommandToQueue(const t_str& string) {
 
 	_commandQueue.push(string);
@@ -79,22 +57,6 @@ bool	Client::popCommand(t_str& out) {
 }
 
 bool	Client::readMessages(t_str& message) {
-/*	if (_buffer.length() == 0) {
-		char	buf[10];
-		int		ret = 1;
-		while (ret > 0) {
-			bzero(buf, 10);
-			ret = recv(_fd, buf, 9, 0);
-			if (ret < 0)
-			{
-				if (errno != EWOULDBLOCK)
-					throw (std::runtime_error("Error with reading buf from client"));
-			}
-			_buffer.append(buf);
-			std::cerr << _buffer << std::endl;
-		}
-	}
-*/
 	char	buf[10];
 	while (1) {
 		bzero(buf, 10);

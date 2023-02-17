@@ -24,27 +24,6 @@ Channel::~Channel()
 	this->_admins.clear();
 }
 
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-// Channel &				Channel::operator=( Channel const & rhs )
-// /* {
-// 	//if ( this != &rhs )
-// 	//{
-// 		//this->_value = rhs.getValue();
-// 	//}
-// 	return *this;
-// } */
-
-/* std::ostream &			operator<<( std::ostream & o, Channel const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-} */
-
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */

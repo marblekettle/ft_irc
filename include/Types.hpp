@@ -23,7 +23,5 @@ typedef std::queue<t_datap>					t_dataq;	//Queue of data from datastreams
 typedef std::pair<int, bool>				t_conn;		//Pair containing a file descriptor, plus true upon opening, false upon disconnect
 typedef std::queue<t_conn>					t_connq;	//Queue of established/disconnected connections
 typedef std::map<int ,Client*>				t_clients;	//Map of connected client pointer with fd as key
-// typedef std::map<std::string, Channel *>	t_channels;
-
 
 #endif

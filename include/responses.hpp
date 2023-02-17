@@ -4,7 +4,6 @@
 
 #define RPL_WELCOME(source, nick) 	":" + source + " 001 " + nick + " :Welcome to the Internet Relay Network, " + nick
 #define RPL_MODE(prefix, channel, nick, message) prefix + " MODE " + nick + " " + channel + " " + message
-// #define RPL_CHANNELMODEIS(prefix, channel, message) prefix + " MODE " + nick + " " + channel + " " + message
 #define RPL_JOIN(prefix, channel)	prefix + " JOIN " + channel
 #define RPL_PART(prefix, channel, message)	prefix + " PART " + channel + " " + message
 #define RPL_KICK(prefix, channel, nick, message) prefix + " PART " + channel + " " + nick + " " + message
